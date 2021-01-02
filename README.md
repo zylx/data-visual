@@ -1,4 +1,4 @@
-# data-visual-tool
+# data-visual
 
 ## Project setup
 ```
