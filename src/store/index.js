@@ -38,7 +38,6 @@ const store = new Vuex.Store({
       left && (curComponent.style.left = left)
       width && (curComponent.style.width = width)
       height && (curComponent.style.height = height)
-      height && (curComponent.style.height = height)
     }
 
   }

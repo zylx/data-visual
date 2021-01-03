@@ -1,12 +1,28 @@
 import {
   Row,
   Col,
+  Tabs,
+  TabPane,
+  Form,
+  FormItem,
+  Input,
+  Select,
+  Option,
+  ColorPicker,
   Button
 } from 'element-ui'
 
 const components = {
   Row,
   Col,
+  Tabs,
+  TabPane,
+  Form,
+  FormItem,
+  Input,
+  Select,
+  Option,
+  ColorPicker,
   Button
 }
 

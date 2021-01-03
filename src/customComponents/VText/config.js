@@ -8,9 +8,9 @@ export default {
   style: {
     width: 200,
     height: 33,
+    lineHeight: '',
     fontSize: 14,
     fontWeight: 500,
-    lineHeight: '',
     letterSpacing: 0,
     textAlign: '',
     color: ''

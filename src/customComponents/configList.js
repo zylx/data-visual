@@ -15,7 +15,7 @@ const components = require.context('./', true, /\.js$/)
 const componentConfigList = components.keys().reduce((configs, configPath) => {
   if (/\/config.js$/.test(configPath)) {
     const value = components(configPath)
-    value.default.style = { ...commonStyle, ...value.default.style } // 合并公共样式
+    value.default.style = { ...value.default.style, ...commonStyle } // 合并公共样式
     configs.push(value.default)
   }
   return configs

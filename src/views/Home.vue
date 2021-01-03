@@ -18,23 +18,43 @@
         </div>
       </section>
       <!-- 右侧属性列表 -->
-      <section class="right-side">right side</section>
+      <section class="right-side">
+        <el-tabs v-model="activeName">
+          <el-tab-pane label="属性" name="attr">
+            <AttrList v-if="curComponent" />
+            <p v-else class="placeholder">请选择组件</p>
+          </el-tab-pane>
+        </el-tabs>
+      </section>
     </main>
   </div>
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import ComponentList from '@/components/ComponentList' // 左侧组件列表
 import componentConfigList from '@/customComponents/configList' // 左侧组件列表数据
 import Editor from '@/components/Editor' // 编辑器
+import AttrList from '@/components/AttrList' // 右侧属性列表
 import { cloneDeep, generateID } from '@/utils/utils'
 
 export default {
   nam: 'Home',
   components: {
     ComponentList,
-    Editor
+    Editor,
+    AttrList
   },
+  data () {
+    return {
+      activeName: 'attr',
+    }
+  },
+  computed: mapState([
+    'componentData',
+    'curComponent',
+    'canvasStyleData',
+  ]),
   methods: {
     handleDrop (e) { // 源对象拖放到目标对象中，目标对象完全接受被拖拽对象时触发，可理解为在目标对象内松手时触发
       console.log('handleDrop -> e:', e)
@@ -100,8 +120,12 @@ export default {
     .right-side {
       width: 220px;
       height: 100%;
-      padding: 15px 10px;
+      overflow: auto;
       background: #fff;
+      .placeholder {
+        text-align: center;
+        color: #333;
+      }
     }
   }
 }
