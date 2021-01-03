@@ -21,6 +21,6 @@ const componentConfigList = components.keys().reduce((configs, configPath) => {
   return configs
 }, [])
 
-console.log(componentConfigList)
+// console.log(componentConfigList)
 
 export default componentConfigList

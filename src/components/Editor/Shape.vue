@@ -106,7 +106,9 @@ export default {
       const startTop = Number(pos.top) // 当前被拖拽组件的 Y 轴坐标
 
       // 鼠标拖拽当前组件
+      let hasMove = false // 如果元素没有移动，则不保存快照
       const move = (moveEvent) => {
+        hasMove = true
         const currX = moveEvent.clientX // 移动时，鼠标当前的 X 坐标
         const currY = moveEvent.clientY // 移动时，鼠标当前的 Y 坐标
         pos.left = (currX - startX) + startLeft // 鼠标在 X 轴方向移动的相对距离加上组件初始的 X 轴坐标值，即可得到当前组件被拖拽到的 X 轴坐标
@@ -116,6 +118,7 @@ export default {
       }
 
       const up = () => {
+        hasMove && this.$store.commit('recordSnapshot')
         document.removeEventListener('mousemove', move)
         document.removeEventListener('mouseup', up)
       }
@@ -145,7 +148,10 @@ export default {
       const startY = downEvent.clientY
 
       // 控制点拖拽
+
+      let needSave = false // 是否需要保存快照
       const move = (moveEvent) => {
+        needSave = true
         const currX = moveEvent.clientX
         const currY = moveEvent.clientY
         const disX = currX - startX // 鼠标在 X 轴方向移动的相对距离
@@ -167,6 +173,7 @@ export default {
       }
 
       const up = () => {
+        needSave && this.$store.commit('recordSnapshot')
         document.removeEventListener('mousemove', move)
         document.removeEventListener('mouseup', up)
       }

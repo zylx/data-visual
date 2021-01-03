@@ -14,7 +14,7 @@
       :defaultStyle="item.style"
       :style="getShapeStyle(item.style, index)"
       :key="item.id"
-      :active="item === curComponent"
+      :active="index === curComponentZIndex"
       :element="item"
       :zIndex="index"
     >
@@ -53,7 +53,7 @@ export default {
   components: { Shape },
   computed: mapState([
     'componentData',
-    'curComponent',
+    'curComponentZIndex',
     'canvasStyle'
   ]),
   methods: {
@@ -92,6 +92,11 @@ export default {
       element.propValue = value
       // 根据文本组件高度调整 shape 高度
       this.$store.commit('setShapeStyle', { height: this.getTextareaHeight(element, value) })
+      // 更新 omponentData 中对应当前索引的 propValue 值
+      this.componentData[this.curComponentZIndex].propValue = value
+      this.$store.commit('setComponentData', this.componentData)
+      // 保存快照
+      this.$store.commit('recordSnapshot')
     },
 
     getTextareaHeight (element, text) {

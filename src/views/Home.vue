@@ -1,6 +1,15 @@
 <template>
   <div class="home">
-    <header>Header</header>
+    <header>
+      <el-button @click="undo" icon="el-icon-arrow-left" size="mini" :disabled="undoEnable" />
+      <el-button @click="redo" icon="el-icon-arrow-right" size="mini" :disabled="redoEnable" />
+      <div class="canvas-config">
+        <span>画布大小</span>
+        <input v-model="canvasStyle.width" />
+        <span>*</span>
+        <input v-model="canvasStyle.height" />
+      </div>
+    </header>
     <main>
       <!-- 左侧组件列表 -->
       <section class="left-side">
@@ -53,19 +62,20 @@ export default {
   computed: mapState([
     'componentData',
     'curComponent',
-    'canvasStyleData',
+    'canvasStyle',
+    "undoEnable",
+    "redoEnable"
   ]),
   methods: {
     handleDrop (e) { // 源对象拖放到目标对象中，目标对象完全接受被拖拽对象时触发，可理解为在目标对象内松手时触发
-      console.log('handleDrop -> e:', e)
       e.preventDefault()
       e.stopPropagation()
       const component = cloneDeep(componentConfigList[e.dataTransfer.getData('index')])
       component.style.top = e.offsetY
       component.style.left = e.offsetX
       component.id = generateID()
-      console.log(component)
       this.$store.commit('addComponent', component)
+      this.$store.commit('recordSnapshot') // 保存快照
     },
 
     handleDragOver (e) { // 源对象在过程对象范围内移动，被拖拽对象在过程对象内移动时触发
@@ -75,6 +85,16 @@ export default {
 
     deselectCurComponent () {
       this.$store.commit('setCurComponent', { component: null, zIndex: null })
+    },
+
+    // 撤消
+    undo () {
+      this.$store.commit('undo')
+    },
+
+    // 重做
+    redo () {
+      this.$store.commit('redo')
     }
   }
 }

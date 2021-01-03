@@ -24,7 +24,6 @@ export default {
   },
   methods: {
     handleDragStart (e) { // 源对象开始拖放，开始移动时事件触发
-      console.log('handleDragStart -> e:', e)
       e.dataTransfer.setData('index', e.target.dataset.index)
     }
   }

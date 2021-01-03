@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import { cloneDeep } from '@/utils/utils'
 
 Vue.use(Vuex)
 
@@ -13,6 +14,10 @@ const store = new Vuex.Store({
     componentData: [], // 添加到画布上的组件数据
     curComponent: null,
     curComponentZIndex: null,
+    snapshotData: [], // 保存编辑器快照数据
+    snapshotIndex: -1, // 快照索引
+    undoEnable: true, // 撤消按钮是否可用
+    redoEnable: true // 重做按钮是否可用
   },
   mutations: {
     setEditMode (state, mode) {
@@ -38,6 +43,43 @@ const store = new Vuex.Store({
       left && (curComponent.style.left = left)
       width && (curComponent.style.width = width)
       height && (curComponent.style.height = height)
+    },
+
+    undo (state) {
+      if (state.snapshotIndex >= 0) {
+        state.undoEnable = false
+        state.redoEnable = false
+        state.snapshotIndex--
+        store.commit('setComponentData', cloneDeep(state.snapshotData[state.snapshotIndex]))
+      } else {
+        state.undoEnable =  true
+      }
+    },
+
+    redo (state) {
+      if (state.snapshotIndex < state.snapshotData.length - 1) {
+        state.undoEnable = false
+        state.redoEnable = false
+        state.snapshotIndex++
+        store.commit('setComponentData', cloneDeep(state.snapshotData[state.snapshotIndex]))
+      } else {
+        state.redoEnable = true
+      }
+    },
+
+    setComponentData (state, componentData = []) {
+      Vue.set(state, 'componentData', componentData)
+    },
+
+    recordSnapshot (state) {
+      // 添加新的快照
+      state.snapshotData[++state.snapshotIndex] = cloneDeep(state.componentData)
+      // 在 undo 过程中，添加新的快照时，要将它后面的快照清理掉
+      if (state.snapshotIndex < state.snapshotData.length - 1) {
+        state.snapshotData = state.snapshotData.slice(0, state.snapshotIndex + 1)
+      }
+      state.undoEnable = false
+      state.redoEnable = false
     }
 
   }
