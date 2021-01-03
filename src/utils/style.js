@@ -5,7 +5,6 @@ export default function getStyle(style, filter = []) {
         if (!filter.includes(key)) {
             if (key != 'rotate') {
                 result[key] = style[key]
-
                 if (!noNeedUnit.includes(key)) {
                     result[key] += 'px'
                 }

@@ -12,6 +12,7 @@
           class="content"
           @drop="handleDrop"
           @dragover="handleDragOver"
+          @click="deselectCurComponent"
         >
           <Editor />
         </div>
@@ -43,13 +44,17 @@ export default {
       component.style.top = e.offsetY
       component.style.left = e.offsetX
       component.id = generateID()
+      console.log(component)
       this.$store.commit('addComponent', component)
     },
 
     handleDragOver (e) { // 源对象在过程对象范围内移动，被拖拽对象在过程对象内移动时触发
-      console.log('handleDragOver -> e:', e)
       e.preventDefault()
       e.dataTransfer.dropEffect = 'copy' // 复制拖动元素
+    },
+
+    deselectCurComponent () {
+      this.$store.commit('setCurComponent', { component: null, zIndex: null })
     }
   }
 }

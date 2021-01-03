@@ -9,12 +9,19 @@
     }"
   >
     <!--页面组件展示-->
-    <template v-for="item in componentData">
+    <Shape
+      v-for="(item, index) in componentData"
+      :defaultStyle="item.style"
+      :style="getShapeStyle(item.style, index)"
+      :key="item.id"
+      :active="item === curComponent"
+      :element="item"
+      :zIndex="index"
+    >
       <component
-        v-if="item.component !== 'v-text'"
+        v-if="item.component != 'v-text'"
         class="component"
         :is="item.component"
-        :key="item.component"
         :style="getComponentStyle(item.style)"
         :propValue="item.propValue"
       />
@@ -22,18 +29,18 @@
         v-else
         class="component"
         :is="item.component"
-        :key="item.component"
         :style="getComponentStyle(item.style)"
         :propValue="item.propValue"
         @input="handleInput"
         :element="item"
       />
-    </template>
+    </Shape>
   </div>
 </template>
 
 <script>
 import { mapState } from 'vuex'
+import Shape from './Shape'
 import getStyle from '@/utils/style'
 
 export default {
@@ -43,17 +50,55 @@ export default {
       default: true
     },
   },
+  components: { Shape },
   computed: mapState([
     'componentData',
+    'curComponent',
     'canvasStyle'
   ]),
   methods: {
-    handleInput (element, value) {
-      element.propValue = value
+    getShapeStyle (style, index) {
+      const result = { ...style }
+      if (result.width) {
+        result.width += 'px'
+      }
+
+      if (result.height) {
+        result.height += 'px'
+      }
+
+      if (result.top) {
+        result.top += 'px'
+      }
+
+      if (result.left) {
+        result.left += 'px'
+      }
+
+      if (result.rotate) {
+        result.transform = 'rotate(' + result.rotate + 'deg)'
+      }
+      // 按顺序添加 z-index 层级
+      result.zIndex = index
+
+      return result
     },
 
     getComponentStyle (style) {
       return getStyle(style, ['top', 'left', 'width', 'height', 'zIndex', 'rotate'])
+    },
+
+    handleInput (element, value) {
+      element.propValue = value
+      // 根据文本组件高度调整 shape 高度
+      this.$store.commit('setShapeStyle', { height: this.getTextareaHeight(element, value) })
+    },
+
+    getTextareaHeight (element, text) {
+      let { lineHeight, fontSize, height } = element.style
+      lineHeight = lineHeight || 1.5
+      const newHeight = text.split('\n').length * lineHeight * fontSize
+      return height > newHeight ? height : newHeight
     }
   }
 }

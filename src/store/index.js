@@ -10,7 +10,9 @@ const store = new Vuex.Store({
       width: 1280,
       height: 800,
     },
-    componentData: [] // 添加到画布上的组件数据
+    componentData: [], // 添加到画布上的组件数据
+    curComponent: null,
+    curComponentZIndex: null,
   },
   mutations: {
     setEditMode (state, mode) {
@@ -24,7 +26,21 @@ const store = new Vuex.Store({
     // 拖拽添加组件
     addComponent (state, component) {
       state.componentData.push(component)
+    },
+
+    setCurComponent (state, { component, zIndex }) {
+      state.curComponent = component
+      state.curComponentZIndex = zIndex
+    },
+
+    setShapeStyle ({ curComponent }, { top, left, width, height }) {
+      top && (curComponent.style.top = top)
+      left && (curComponent.style.left = left)
+      width && (curComponent.style.width = width)
+      height && (curComponent.style.height = height)
+      height && (curComponent.style.height = height)
     }
+
   }
 })
 
