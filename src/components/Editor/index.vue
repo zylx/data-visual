@@ -1,7 +1,7 @@
 <template>
   <div
-    class="editor"
     id="editor"
+    class="editor"
     :class="{ edit: isEdit }"
     :style="{
       width: canvasStyle.width + 'px',
@@ -35,12 +35,15 @@
         :element="item"
       />
     </Shape>
+    <!-- 右击菜单 -->
+    <ContextMenu />
   </div>
 </template>
 
 <script>
 import { mapState } from 'vuex'
 import Shape from './Shape'
+import ContextMenu from './ContextMenu'
 import getStyle from '@/utils/style'
 
 export default {
@@ -50,7 +53,7 @@ export default {
       default: true
     },
   },
-  components: { Shape },
+  components: { Shape, ContextMenu },
   computed: mapState([
     'componentData',
     'curComponentZIndex',

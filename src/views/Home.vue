@@ -84,8 +84,10 @@ export default {
       e.dataTransfer.dropEffect = 'copy' // 复制拖动元素
     },
 
+    // 不选中元素
     deselectCurComponent () {
       this.$store.commit('setCurComponent', { component: null, zIndex: null })
+      this.$store.commit('hideContexeMenu')
     }
 
   }

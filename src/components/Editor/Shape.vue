@@ -4,6 +4,7 @@
     :class="{ active: this.active }"
     @click="selectCurComponent"
     @mousedown="handleMouseDown"
+    @contextmenu="handleContextMenu"
   >
     <div
       class="shape-point"
@@ -23,20 +24,20 @@ export default {
   props: {
     active: {
       type: Boolean,
-      default: false,
+      default: false
     },
     element: {
       require: true,
-      type: Object,
+      type: Object
     },
     defaultStyle: {
       require: true,
-      type: Object,
+      type: Object
     },
     zIndex: {
       require: true,
-      type: [Number, String],
-    },
+      type: [Number, String]
+    }
   },
   data () {
     return {
@@ -45,7 +46,7 @@ export default {
     }
   },
   computed: mapState([
-    'curComponent',
+    'curComponent'
   ]),
   methods: {
     getPointStyle (point) {
@@ -180,6 +181,24 @@ export default {
 
       document.addEventListener('mousemove', move)
       document.addEventListener('mouseup', up)
+    },
+
+    // 右键菜单
+    handleContextMenu (e) {
+      e.stopPropagation()
+      e.preventDefault()
+
+      // 计算菜单相对于编辑器的位移
+      let target = e.target
+      let top = e.offsetY
+      let left = e.offsetX
+      while (!target.className.includes('editor')) {
+        left += target.offsetLeft
+        top += target.offsetTop
+        target = target.parentNode
+      }
+
+      this.$store.commit('showContexeMenu', { top, left })
     }
 
   }

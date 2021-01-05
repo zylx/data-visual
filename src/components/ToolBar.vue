@@ -1,19 +1,11 @@
 <template>
   <div class="tool-bar">
     <div class="tool-bar-item">
-      <span :class="{ disabled: !undoEnable }">
-        <icon
-          name="undo"
-          @click.native="undo"
-          :styles="{ padding: '2px 5px', color: '#66b1ff' }"
-        />
+      <span :class="{ disabled: !undoEnable }" @click="undo">
+        <icon name="redo" :styles="{ padding: '2px 5px', color: '#66b1ff' }" />
       </span>
-      <span :class="{ disabled: !redoEnable }">
-        <icon
-          name="redo"
-          @click.native="redo"
-          :styles="{ padding: '2px 5px', color: '#66b1ff' }"
-        />
+      <span :class="{ disabled: !redoEnable }" @click="redo">
+        <icon name="redo" :styles="{ padding: '2px 5px', color: '#66b1ff' }" />
       </span>
     </div>
     <div class="tool-bar-item">
@@ -64,18 +56,19 @@ export default {
       width: 50px;
       height: 100%;
       margin: 0 5px;
-      border: 1px solid #e3e3e3;
+      border: 1px solid #dcdfe6;
       border-radius: 3px;
       cursor: pointer;
-      background: #f6f6f6;
+      color: #606266;
+      background: #fefefe;
       :hover {
-        background: #fff;
+        background: #ecf5ff;
       }
     }
     .disabled {
       cursor: not-allowed;
       :hover {
-        background: #f6f6f6;
+        background: #fefefe;
       }
     }
   }

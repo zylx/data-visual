@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { cloneDeep } from '@/utils/utils'
+import { cloneDeep, swap } from '@/utils/utils'
+import { message } from 'element-ui'
 
 Vue.use(Vuex)
 
@@ -17,7 +18,10 @@ const store = new Vuex.Store({
     snapshotData: [], // 保存编辑器快照数据
     snapshotIndex: -1, // 快照索引
     undoEnable: false, // 撤消按钮是否可用
-    redoEnable: false // 重做按钮是否可用
+    redoEnable: false, // 重做按钮是否可用
+    menuTop: 0, // 右键菜单对于编辑器上边框的距离
+    menuLeft: 0, // 右键菜单对于编辑器左边框的距离
+    menuShow: false, // 右键菜单是否显示
   },
   mutations: {
     setEditMode (state, mode) {
@@ -33,11 +37,13 @@ const store = new Vuex.Store({
       state.componentData.push(component)
     },
 
+    // 设置当前组件信息
     setCurComponent (state, { component, zIndex }) {
       state.curComponent = component
       state.curComponentZIndex = zIndex
     },
 
+    // 修改当前组件样式
     setShapeStyle ({ curComponent }, { top, left, width, height }) {
       top && (curComponent.style.top = top)
       left && (curComponent.style.left = left)
@@ -45,6 +51,7 @@ const store = new Vuex.Store({
       height && (curComponent.style.height = height)
     },
 
+    // 撤消
     undo (state) {
       console.log('undo')
       if (state.snapshotIndex >= 0) {
@@ -53,10 +60,11 @@ const store = new Vuex.Store({
         state.snapshotIndex--
         store.commit('setComponentData', cloneDeep(state.snapshotData[state.snapshotIndex]))
       } else {
-        state.undoEnable =  false
+        state.undoEnable = false
       }
     },
 
+    // 重做
     redo (state) {
       console.log('redo')
       if (state.snapshotIndex < state.snapshotData.length - 1) {
@@ -69,10 +77,12 @@ const store = new Vuex.Store({
       }
     },
 
+    // 设置（更新）画布中组件信息
     setComponentData (state, componentData = []) {
       Vue.set(state, 'componentData', componentData)
     },
 
+    // 记录操作步骤快照
     recordSnapshot (state) {
       // 添加新的快照
       state.snapshotData[++state.snapshotIndex] = cloneDeep(state.componentData)
@@ -82,6 +92,63 @@ const store = new Vuex.Store({
       }
       state.undoEnable = true
       state.redoEnable = true
+    },
+
+    // 显示右键菜单
+    showContexeMenu (state, { top, left }) {
+      state.menuShow = true
+      state.menuTop = top
+      state.menuLeft = left + 10
+    },
+
+    // 隐藏右键菜单
+    hideContexeMenu (state) {
+      state.menuShow = false
+    },
+
+    // 删除组件
+    deleteComponent (state) {
+      state.componentData.splice(state.curComponentZIndex, 1)
+    },
+
+    // 上移组件
+    upComponent ({ componentData, curComponentZIndex }) {
+      // 上移图层 zIndex，表示元素在数组中越往后
+      if (curComponentZIndex < componentData.length - 1) {
+        swap(componentData, curComponentZIndex, curComponentZIndex + 1)
+      } else {
+        message.success('已经到顶了')
+      }
+    },
+
+    // 下移组件
+    downComponent ({ componentData, curComponentZIndex }) {
+      // 下移图层 zIndex，表示元素在数组中越往前
+      if (curComponentZIndex > 0) {
+        swap(componentData, curComponentZIndex, curComponentZIndex - 1)
+      } else {
+        message.success('已经到底了')
+      }
+    },
+
+    // 置顶组件
+    topComponent ({ componentData, curComponentZIndex }) {
+      // 置顶
+      if (curComponentZIndex < componentData.length - 1) {
+        swap(componentData, curComponentZIndex, componentData.length - 1)
+      } else {
+        message.success('已经置顶了')
+      }
+    },
+
+    // 置底组件
+    bottomComponent ({ componentData, curComponentZIndex }) {
+      // 置底
+      if (curComponentZIndex > 0) {
+        swap(componentData, curComponentZIndex, 0)
+      } else {
+        message.success('已经置底了')
+      }
     }
 
   }
