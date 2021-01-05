@@ -16,8 +16,8 @@ const store = new Vuex.Store({
     curComponentZIndex: null,
     snapshotData: [], // 保存编辑器快照数据
     snapshotIndex: -1, // 快照索引
-    undoEnable: true, // 撤消按钮是否可用
-    redoEnable: true // 重做按钮是否可用
+    undoEnable: false, // 撤消按钮是否可用
+    redoEnable: false // 重做按钮是否可用
   },
   mutations: {
     setEditMode (state, mode) {
@@ -46,24 +46,26 @@ const store = new Vuex.Store({
     },
 
     undo (state) {
+      console.log('undo')
       if (state.snapshotIndex >= 0) {
-        state.undoEnable = false
-        state.redoEnable = false
+        state.undoEnable = true
+        state.redoEnable = true
         state.snapshotIndex--
         store.commit('setComponentData', cloneDeep(state.snapshotData[state.snapshotIndex]))
       } else {
-        state.undoEnable =  true
+        state.undoEnable =  false
       }
     },
 
     redo (state) {
+      console.log('redo')
       if (state.snapshotIndex < state.snapshotData.length - 1) {
-        state.undoEnable = false
-        state.redoEnable = false
+        state.undoEnable = true
+        state.redoEnable = true
         state.snapshotIndex++
         store.commit('setComponentData', cloneDeep(state.snapshotData[state.snapshotIndex]))
       } else {
-        state.redoEnable = true
+        state.redoEnable = false
       }
     },
 
@@ -78,8 +80,8 @@ const store = new Vuex.Store({
       if (state.snapshotIndex < state.snapshotData.length - 1) {
         state.snapshotData = state.snapshotData.slice(0, state.snapshotIndex + 1)
       }
-      state.undoEnable = false
-      state.redoEnable = false
+      state.undoEnable = true
+      state.redoEnable = true
     }
 
   }

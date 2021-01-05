@@ -1,8 +1,9 @@
 <template>
   <div class="home">
     <header>
-      <el-button @click="undo" icon="el-icon-arrow-left" size="mini" :disabled="undoEnable" />
-      <el-button @click="redo" icon="el-icon-arrow-right" size="mini" :disabled="redoEnable" />
+      <section class="tool-bar-area">
+        <tool-bar />
+      </section>
       <div class="canvas-config">
         <span>画布大小</span>
         <input v-model="canvasStyle.width" />
@@ -44,6 +45,7 @@ import { mapState } from 'vuex'
 import ComponentList from '@/components/ComponentList' // 左侧组件列表
 import componentConfigList from '@/customComponents/configList' // 左侧组件列表数据
 import Editor from '@/components/Editor' // 编辑器
+import ToolBar from '@/components/ToolBar'
 import AttrList from '@/components/AttrList' // 右侧属性列表
 import { cloneDeep, generateID } from '@/utils/utils'
 
@@ -52,6 +54,7 @@ export default {
   components: {
     ComponentList,
     Editor,
+    ToolBar,
     AttrList
   },
   data () {
@@ -62,9 +65,7 @@ export default {
   computed: mapState([
     'componentData',
     'curComponent',
-    'canvasStyle',
-    "undoEnable",
-    "redoEnable"
+    'canvasStyle'
   ]),
   methods: {
     handleDrop (e) { // 源对象拖放到目标对象中，目标对象完全接受被拖拽对象时触发，可理解为在目标对象内松手时触发
@@ -85,17 +86,8 @@ export default {
 
     deselectCurComponent () {
       this.$store.commit('setCurComponent', { component: null, zIndex: null })
-    },
-
-    // 撤消
-    undo () {
-      this.$store.commit('undo')
-    },
-
-    // 重做
-    redo () {
-      this.$store.commit('redo')
     }
+
   }
 }
 </script>
@@ -111,6 +103,10 @@ export default {
     height: 64px;
     line-height: 64px;
     border-bottom: 1px solid #ececec;
+    .tool-bar-area {
+      height: 100%;
+      text-align: center;
+    }
   }
 
   main {
