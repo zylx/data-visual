@@ -9,7 +9,7 @@
     }"
   >
     <!--页面组件展示-->
-    <Shape
+    <shape
       v-for="(item, index) in componentData"
       :defaultStyle="item.style"
       :style="getShapeStyle(item.style, index)"
@@ -34,9 +34,11 @@
         @input="handleInput"
         :element="item"
       />
-    </Shape>
+    </shape>
     <!-- 右击菜单 -->
-    <ContextMenu />
+    <context-menu />
+    <!-- 标线 -->
+    <mark-line />
   </div>
 </template>
 
@@ -44,6 +46,7 @@
 import { mapState } from 'vuex'
 import Shape from './Shape'
 import ContextMenu from './ContextMenu'
+import MarkLine from './MarkLine'
 import getStyle from '@/utils/style'
 
 export default {
@@ -53,7 +56,7 @@ export default {
       default: true
     },
   },
-  components: { Shape, ContextMenu },
+  components: { Shape, ContextMenu, MarkLine },
   computed: mapState([
     'componentData',
     'curComponentZIndex',

@@ -51,6 +51,10 @@ const store = new Vuex.Store({
       height && (curComponent.style.height = height)
     },
 
+    setShapePosStyle ({ curComponent }, { key, value }) {
+      curComponent.style[key] = value
+    },
+
     // 撤消
     undo (state) {
       console.log('undo')

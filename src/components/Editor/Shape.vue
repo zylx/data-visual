@@ -19,6 +19,7 @@
 
 <script>
 import { mapState } from 'vuex'
+import eventBus from '@/utils/eventBus'
 
 export default {
   props: {
@@ -116,12 +117,23 @@ export default {
         pos.top = (currY - startY) + startTop // Y 轴方向同理
         // 修改当前组件样式
         this.$store.commit('setShapeStyle', pos)
+        // 等更新完当前组件的样式并绘制到屏幕后再判断是否需要吸附
+        // 如果不使用 $nextTick，吸附后将无法移动
+        this.$nextTick(() => {
+          // 触发元素移动事件，用于显示标线、吸附功能
+          // 后面两个参数代表鼠标移动方向
+          // currY - startY > 0 true 表示向下移动 false 表示向上移动
+          // currX - startX > 0 true 表示向右移动 false 表示向左移动
+          eventBus.$emit('move', this.$el, currY - startY > 0, currX - startX > 0)
+        })
       }
 
       const up = () => {
         hasMove && this.$store.commit('recordSnapshot')
         document.removeEventListener('mousemove', move)
         document.removeEventListener('mouseup', up)
+        // 触发元素停止移动事件，用于隐藏标线
+        eventBus.$emit('unmove')
       }
 
       document.addEventListener('mousemove', move)
