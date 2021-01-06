@@ -8,11 +8,7 @@ export function cloneDeep (target) {
     if (typeof target == 'object') {
         const result = Array.isArray(target) ? [] : {}
         for (const key in target) {
-            if (typeof target[key] == 'object') {
-                result[key] = cloneDeep(target[key])
-            } else {
-                result[key] = target[key]
-            }
+            result[key] = (typeof target[key] == 'object') ? cloneDeep(target[key]) : target[key]
         }
         return result
     }
@@ -20,7 +16,5 @@ export function cloneDeep (target) {
 }
 
 export function swap (arr, i, j) {
-    const temp = arr[i]
-    arr[i] = arr[j]
-    arr[j] = temp
+    [arr[i], arr[j]] = [arr[j], arr[i]]
 }
