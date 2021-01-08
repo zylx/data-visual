@@ -2,7 +2,7 @@
   <div class="tool-bar">
     <div class="tool-bar-item">
       <span :class="{ disabled: !undoEnable }" @click="undo">
-        <icon name="redo" :styles="{ padding: '2px 5px', color: '#66b1ff' }" />
+        <icon name="undo" :styles="{ padding: '2px 5px', color: '#66b1ff' }" />
       </span>
       <span :class="{ disabled: !redoEnable }" @click="redo">
         <icon name="redo" :styles="{ padding: '2px 5px', color: '#66b1ff' }" />
@@ -16,16 +16,18 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapGetters } from 'vuex'
 import Icon from '@/components/Icon'
 
 export default {
   nam: 'Home',
   components: { Icon },
-  computed: mapState([
-    "undoEnable",
-    "redoEnable"
-  ]),
+  computed: {
+    ...mapGetters([
+      "undoEnable",
+      "redoEnable"
+    ])
+  },
   methods: {
     // 撤消
     undo () {

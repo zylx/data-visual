@@ -5,36 +5,66 @@ import { message } from 'element-ui'
 
 Vue.use(Vuex)
 
+// 编辑器中的组件数据缓存
+const componentDataCache  = JSON.parse(localStorage.getItem('componentData')) || []
+// 编辑器快照数据缓存
+const snapshotDataCache  = JSON.parse(localStorage.getItem('snapshotData')) || []
+// 编辑器快照数据索引缓存
+const snapshotIndexCache  = parseInt(localStorage.getItem('snapshotIndex')) || -1
+
 const store = new Vuex.Store({
   state: {
     editMode: 'edit', // 编辑器模式 edit read
+    editorNode: null, // 编辑器节点
     canvasStyle: { // 页面全局数据
       width: 1280,
       height: 800,
     },
-    componentData: [], // 添加到画布上的组件数据
+    selectBoxStyle: { // 拖拽选框样式
+      display: 'none',
+      left: 0,
+      top: 0,
+      width: 0,
+      height: 0
+    },
+    componentData: componentDataCache, // 编辑器中的组件数据
+    selectedComponents: [], // 鼠标拖拽选框时，被选中的组件
     curComponent: null,
     curComponentZIndex: null,
-    snapshotData: [], // 保存编辑器快照数据
-    snapshotIndex: -1, // 快照索引
+    snapshotData: snapshotDataCache, // 保存编辑器快照数据
+    snapshotIndex: snapshotIndexCache, // 快照索引
     undoEnable: false, // 撤消按钮是否可用
     redoEnable: false, // 重做按钮是否可用
-    menuTop: 0, // 右键菜单对于编辑器上边框的距离
-    menuLeft: 0, // 右键菜单对于编辑器左边框的距离
+    menuLeft: 0, // 右键菜单相对于编辑器原点的 X 坐标
+    menuTop: 0, // 右键菜单相对于编辑器原点的 Y 坐标
     menuShow: false, // 右键菜单是否显示
+  },
+  getters: {
+    undoEnable: state => state.snapshotIndex > 0 ? true : false,
+    redoEnable: state => state.snapshotIndex < state.snapshotData.length - 1 ? true : false
   },
   mutations: {
     setEditMode (state, mode) {
       state.editMode = mode
     },
 
+    setEditorNode (state, node) {
+      state.editorNode = node
+    },
+
     // 设置画布样式
     setCanvasStyle (state, style) {
       state.canvasStyle = style
     },
+
     // 拖拽添加组件
     addComponent (state, component) {
       state.componentData.push(component)
+    },
+
+    // 更新选中的组件
+    setSelectedComponents (state, components) {
+      state.selectedComponents = components
     },
 
     // 设置当前组件信息
@@ -55,14 +85,27 @@ const store = new Vuex.Store({
       curComponent.style[key] = value
     },
 
+    // 更新 selectBox 位置及宽高
+    setSelectBoxStyle (state, style) {
+      const result = {
+        display: style.display || 'none',
+        width: style.width || 0,
+        height: style.height || 0,
+        left: style.left || 0,
+        top: style.top || 0,
+      }
+      state.selectBoxStyle = result
+    },
+
     // 撤消
     undo (state) {
-      console.log('undo')
-      if (state.snapshotIndex >= 0) {
+      if (state.snapshotIndex > 0) {
         state.undoEnable = true
         state.redoEnable = true
         state.snapshotIndex--
         store.commit('setComponentData', cloneDeep(state.snapshotData[state.snapshotIndex]))
+        // 更新快照索引缓存
+        localStorage.setItem('snapshotIndex', state.snapshotIndex)
       } else {
         state.undoEnable = false
       }
@@ -70,12 +113,13 @@ const store = new Vuex.Store({
 
     // 重做
     redo (state) {
-      console.log('redo')
       if (state.snapshotIndex < state.snapshotData.length - 1) {
         state.undoEnable = true
         state.redoEnable = true
         state.snapshotIndex++
         store.commit('setComponentData', cloneDeep(state.snapshotData[state.snapshotIndex]))
+        // 更新快照索引缓存
+        localStorage.setItem('snapshotIndex', state.snapshotIndex)
       } else {
         state.redoEnable = false
       }
@@ -94,6 +138,11 @@ const store = new Vuex.Store({
       if (state.snapshotIndex < state.snapshotData.length - 1) {
         state.snapshotData = state.snapshotData.slice(0, state.snapshotIndex + 1)
       }
+      // 更新组件缓存
+      localStorage.setItem('componentData', JSON.stringify(state.componentData))
+      // 更新快照缓存
+      localStorage.setItem('snapshotIndex', state.snapshotData.length - 1)
+      localStorage.setItem('snapshotData', JSON.stringify(state.snapshotData))
       state.undoEnable = true
       state.redoEnable = true
     },

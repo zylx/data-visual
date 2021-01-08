@@ -12,8 +12,8 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import eventBus from '@/utils/eventBus'
-
 export default {
   data () {
     return {
@@ -26,12 +26,10 @@ export default {
         yl: false,
         yc: false,
         yr: false
-      },
-      editor: null
+      }
     }
   },
   mounted () {
-    this.editor = document.querySelector('#editor')
     // 监听元素移动和不移动的事件
     eventBus.$on('move', (dragNode, isDownward, isRightward) => {
       this.showLine(dragNode, isDownward, isRightward)
@@ -41,6 +39,9 @@ export default {
       this.hideLine()
     })
   },
+  computed: mapState([
+    'editorNode'
+  ]),
   methods: {
     hideLine () {
       Object.keys(this.lineStatus).forEach(line => {
@@ -210,7 +211,7 @@ export default {
     // 获取节点相对编辑器的位置
     getNodeRelativePosition (node) {
       let { top, height, bottom, left, width, right } = node.getBoundingClientRect()
-      const editorRectInfo = this.editor.getBoundingClientRect()
+      const editorRectInfo = this.editorNode.getBoundingClientRect()
 
       left -= editorRectInfo.left
       top -= editorRectInfo.top

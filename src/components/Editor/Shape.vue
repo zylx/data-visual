@@ -1,14 +1,14 @@
 <template>
   <div
     class="shape"
-    :class="{ active: this.active }"
+    :class="{ active: active }"
     @click="selectCurComponent"
     @mousedown="handleMouseDown"
     @contextmenu="handleContextMenu"
   >
     <div
       class="shape-point"
-      v-for="(item, index) in active ? pointList : []"
+      v-for="(item, index) in (active ? pointList : [])"
       @mousedown="handleMouseDownOnPoint(item)"
       :key="index"
       :style="getPointStyle(item)"

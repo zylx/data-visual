@@ -1,6 +1,6 @@
 <template>
   <textarea
-    v-if="editMode == 'edit'"
+    v-if="editMode === 'edit'"
     :value="propValue"
     @change="handleInput"
     class="text textarea"
