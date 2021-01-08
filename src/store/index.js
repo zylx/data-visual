@@ -33,15 +33,13 @@ const store = new Vuex.Store({
     curComponentZIndex: null,
     snapshotData: snapshotDataCache, // 保存编辑器快照数据
     snapshotIndex: snapshotIndexCache, // 快照索引
-    undoEnable: false, // 撤消按钮是否可用
-    redoEnable: false, // 重做按钮是否可用
     menuLeft: 0, // 右键菜单相对于编辑器原点的 X 坐标
     menuTop: 0, // 右键菜单相对于编辑器原点的 Y 坐标
     menuShow: false, // 右键菜单是否显示
   },
   getters: {
-    undoEnable: state => state.snapshotIndex > 0 ? true : false,
-    redoEnable: state => state.snapshotIndex < state.snapshotData.length - 1 ? true : false
+    undoEnable: state => state.snapshotIndex > 0 ? true : false, // 撤消按钮是否可用
+    redoEnable: state => state.snapshotIndex < state.snapshotData.length - 1 ? true : false // 重做按钮是否可用
   },
   mutations: {
     setEditMode (state, mode) {
@@ -100,28 +98,20 @@ const store = new Vuex.Store({
     // 撤消
     undo (state) {
       if (state.snapshotIndex > 0) {
-        state.undoEnable = true
-        state.redoEnable = true
         state.snapshotIndex--
         store.commit('setComponentData', cloneDeep(state.snapshotData[state.snapshotIndex]))
         // 更新快照索引缓存
         localStorage.setItem('snapshotIndex', state.snapshotIndex)
-      } else {
-        state.undoEnable = false
       }
     },
 
     // 重做
     redo (state) {
       if (state.snapshotIndex < state.snapshotData.length - 1) {
-        state.undoEnable = true
-        state.redoEnable = true
         state.snapshotIndex++
         store.commit('setComponentData', cloneDeep(state.snapshotData[state.snapshotIndex]))
         // 更新快照索引缓存
         localStorage.setItem('snapshotIndex', state.snapshotIndex)
-      } else {
-        state.redoEnable = false
       }
     },
 
@@ -143,8 +133,6 @@ const store = new Vuex.Store({
       // 更新快照缓存
       localStorage.setItem('snapshotIndex', state.snapshotData.length - 1)
       localStorage.setItem('snapshotData', JSON.stringify(state.snapshotData))
-      state.undoEnable = true
-      state.redoEnable = true
     },
 
     // 显示右键菜单
