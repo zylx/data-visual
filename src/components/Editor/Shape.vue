@@ -1,14 +1,14 @@
 <template>
   <div
-    class="shape"
-    :class="{ active: active }"
+    :index="cIndex"
+    :class="['shape', { active, selected }]"
     @click="selectCurComponent"
     @mousedown="handleMouseDown"
     @contextmenu="handleContextMenu"
   >
     <div
       class="shape-point"
-      v-for="(item, index) in (active ? pointList : [])"
+      v-for="(item, index) in active ? pointList : []"
       @mousedown="handleMouseDownOnPoint(item)"
       :key="index"
       :style="getPointStyle(item)"
@@ -20,10 +20,15 @@
 <script>
 import { mapState } from 'vuex'
 import eventBus from '@/utils/eventBus'
+import { cloneDeep } from '@/utils/utils'
 
 export default {
   props: {
     active: {
+      type: Boolean,
+      default: false
+    },
+    selected: {
       type: Boolean,
       default: false
     },
@@ -35,7 +40,7 @@ export default {
       require: true,
       type: Object
     },
-    zIndex: {
+    cIndex: {
       require: true,
       type: [Number, String]
     }
@@ -47,7 +52,9 @@ export default {
     }
   },
   computed: mapState([
-    'curComponent'
+    'curComponent',
+    'componentData',
+    'selectedComponents'
   ]),
   methods: {
     getPointStyle (point) {
@@ -98,16 +105,22 @@ export default {
         e.preventDefault()
       }
       e.stopPropagation()
-      this.$store.commit('setCurComponent', { component: this.element, zIndex: this.zIndex })
+      this.$store.commit('setCurComponent', { component: this.element, zIndex: this.cIndex })
 
       const pos = { ...this.defaultStyle }
       const startX = e.clientX // 点击时鼠标的 X 坐标
       const startY = e.clientY // 点击时鼠标的 Y 坐标
       // 如果直接修改属性，值的类型会变为字符串，所以要转为数值型
-      const startLeft = Number(pos.left) // 当前被拖拽组件的 X 轴坐标
-      const startTop = Number(pos.top) // 当前被拖拽组件的 Y 轴坐标
+      const startLeft = Number(pos.left) // 当前被拖拽组件的初始 X 轴坐标
+      const startTop = Number(pos.top) // 当前被拖拽组件的初始 Y 轴坐标
+
+      // 获取被选中的组件
+      const components = document.querySelectorAll('.selected')
+      // 获取组件相对于编辑器原点的 left、top 偏移量
+      const offsetStyle = this.getOffsetStyle(components)
 
       // 鼠标拖拽当前组件
+      let componentData = cloneDeep(this.componentData)
       let hasMove = false // 如果元素没有移动，则不保存快照
       const move = (moveEvent) => {
         hasMove = true
@@ -115,8 +128,28 @@ export default {
         const currY = moveEvent.clientY // 移动时，鼠标当前的 Y 坐标
         pos.left = (currX - startX) + startLeft // 鼠标在 X 轴方向移动的相对距离加上组件初始的 X 轴坐标值，即可得到当前组件被拖拽到的 X 轴坐标
         pos.top = (currY - startY) + startTop // Y 轴方向同理
-        // 修改当前组件样式
+        // 更新对应的组件位置信息
+        componentData[this.cIndex].style.left = pos.left
+        componentData[this.cIndex].style.top = pos.top
+        // 修改当前拖拽组件的样式
         this.$store.commit('setShapeStyle', pos)
+
+        // 遍历并移动其他被选中的组件（除自身）
+        components.forEach((component) => {
+          // cIndex，对应 componentData 数组中的下标
+          const cIndex = parseInt(component.getAttribute('index'))
+          if (cIndex !== this.cIndex) {
+            // offsetStyle[cId].offsetLeft 拖动前，组件相对于编辑器原点的初始 X 轴坐标
+            const left = (currX - startX) + offsetStyle[cIndex].offsetLeft
+            const top = (currY - startY) + offsetStyle[cIndex].offsetTop
+            component.style.left = `${left}px`
+            component.style.top = `${top}px`
+            // 更新对应的组件位置信息
+            componentData[cIndex].style.left = left
+            componentData[cIndex].style.top = top
+          }
+        })
+
         // 等更新完当前组件的样式并绘制到屏幕后再判断是否需要吸附
         // 如果不使用 $nextTick，吸附后将无法移动
         this.$nextTick(() => {
@@ -129,6 +162,8 @@ export default {
       }
 
       const up = () => {
+        // 更新组件列表
+        this.$store.commit('setComponentData', componentData)
         hasMove && this.$store.commit('recordSnapshot')
         document.removeEventListener('mousemove', move)
         document.removeEventListener('mouseup', up)
@@ -211,6 +246,20 @@ export default {
       }
 
       this.$store.commit('showContexeMenu', { top, left })
+    },
+
+    // 获取组件相对于编辑器原点的 left、top 偏移量
+    getOffsetStyle (components) {
+      const offsetStyle = {}
+      components.length && components.forEach((component) => {
+        // cIndex，对应 componentData 数组中的下标
+        const cIndex = component.getAttribute('index')
+        offsetStyle[cIndex] = {
+          offsetLeft: component.offsetLeft,
+          offsetTop: component.offsetTop
+        }
+      })
+      return offsetStyle
     }
 
   }
@@ -224,6 +273,10 @@ export default {
 .active {
   border: 1px solid #70c0ff;
   cursor: move;
+}
+.selected {
+  border: 1px solid #66b1ff;
+  background-color: rgba(112, 192, 255, 0.3);
 }
 .shape-point {
   position: absolute;

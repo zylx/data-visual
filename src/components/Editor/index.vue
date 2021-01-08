@@ -16,19 +16,20 @@
       :style="getShapeStyle(item.style, index)"
       :key="item.id"
       :active="index === curComponentZIndex"
+      :selected="item.selected"
       :element="item"
-      :zIndex="index"
+      :cIndex="index"
     >
       <component
         v-if="item.component != 'v-text'"
-        :class="['component', { selected: item.selected }]"
+        class="component"
         :is="item.component"
         :style="getComponentStyle(item.style)"
         :propValue="item.propValue"
       />
       <component
         v-else
-        :class="['component', { selected: item.selected }]"
+        class="component"
         :is="item.component"
         :style="getComponentStyle(item.style)"
         :propValue="item.propValue"
@@ -221,10 +222,6 @@ export default {
     outline: none;
     width: 100%;
     height: 100%;
-  }
-  .selected {
-    background-color: rgba(112, 192, 255, 0.3);
-    border: 1px solid #66b1ff;
   }
 }
 </style>
