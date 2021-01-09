@@ -109,7 +109,7 @@ export default {
 
       // 获取被选中的组件
       const components = document.querySelectorAll('.selected')
-      // 获取组件相对于编辑器原点的 left、top 偏移量
+      // 获取组件初始状态相对于编辑器原点的 left、top 偏移量
       const offsetStyle = this.getOffsetStyle(components)
 
       // 鼠标拖拽当前组件
@@ -120,13 +120,13 @@ export default {
         const currX = moveEvent.clientX // 移动时，鼠标当前的 X 坐标
         const currY = moveEvent.clientY // 移动时，鼠标当前的 Y 坐标
 
-        // 遍历并移动其他被选中的组件（除自身）
+        // 遍历并移动被选中的单个或多个组件
         components.forEach((component) => {
           // cIndex，对应 componentData 数组中的下标
           const cIndex = parseInt(component.getAttribute('index'))
           // offsetStyle[cId].offsetLeft 拖动前，组件相对于编辑器原点的初始 X 轴坐标
-          const left = (currX - startX) + offsetStyle[cIndex].offsetLeft
-          const top = (currY - startY) + offsetStyle[cIndex].offsetTop
+          const left = (currX - startX) + offsetStyle[cIndex].offsetLeft || 0
+          const top = (currY - startY) + offsetStyle[cIndex].offsetTop || 0
           component.style.left = `${left}px`
           component.style.top = `${top}px`
           // 更新对应的组件位置信息
@@ -232,7 +232,7 @@ export default {
       this.$store.commit('showContexeMenu', { top, left })
     },
 
-    // 获取组件相对于编辑器原点的 left、top 偏移量
+    // 获取组件初始状态相对于编辑器原点的 left、top 偏移量
     getOffsetStyle (components) {
       const offsetStyle = {}
       components.length && components.forEach((component) => {
