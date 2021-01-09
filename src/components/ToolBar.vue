@@ -1,11 +1,17 @@
 <template>
   <div class="tool-bar">
     <div class="tool-bar-item">
-      <span :class="{ disabled: !undoEnable }" @click="undo">
+      <span :class="{ disabled: !canUndo }" @click="undo">
         <icon name="undo" :styles="{ padding: '2px 5px', color: '#66b1ff' }" />
       </span>
-      <span :class="{ disabled: !redoEnable }" @click="redo">
+      <span :class="{ disabled: !canRedo }" @click="redo">
         <icon name="redo" :styles="{ padding: '2px 5px', color: '#66b1ff' }" />
+      </span>
+      <span :class="{ disabled: !canClearCanvas }" @click="clearCanvas">
+        <icon
+          name="qingchu"
+          :styles="{ padding: '2px 5px', color: '#66b1ff' }"
+        />
       </span>
     </div>
     <div class="tool-bar-item">
@@ -18,25 +24,43 @@
 <script>
 import { mapGetters } from 'vuex'
 import Icon from '@/components/Icon'
+import { setLocalStorage } from '@/utils/utils'
 
 export default {
   nam: 'Home',
   components: { Icon },
   computed: {
     ...mapGetters([
-      "undoEnable",
-      "redoEnable"
+      'canUndo',
+      'canRedo',
+      'canClearCanvas'
     ])
   },
   methods: {
     // 撤消
     undo () {
-      this.undoEnable && this.$store.commit('undo')
+      this.canUndo && this.$store.commit('undo')
     },
 
     // 重做
     redo () {
-      this.redoEnable && this.$store.commit('redo')
+      this.canRedo && this.$store.commit('redo')
+    },
+
+    // 清屏
+    clearCanvas () {
+      this.$messageBox.confirm('画布内容尚未保存，确定要清空吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$store.commit('setComponentData', [])
+        // 清空组件缓存
+        setLocalStorage('componentData', [])
+        // 清空快照缓存
+        setLocalStorage('snapshotIndex', - 1)
+        setLocalStorage('snapshotData', [])
+      }).catch(() => { })
     }
   }
 }

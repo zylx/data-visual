@@ -9,7 +9,10 @@ import {
   Select,
   Option,
   ColorPicker,
-  Button
+  Button,
+  Message,
+  MessageBox,
+  Popconfirm
 } from 'element-ui'
 
 const components = {
@@ -23,13 +26,14 @@ const components = {
   Select,
   Option,
   ColorPicker,
-  Button
+  Button,
+  Popconfirm
 }
 
 export default {
   install (Vue) {
-    // Vue.prototype.$message = Message
-    // Vue.prototype.$modal = Modal
+    Vue.prototype.$message = Message
+    Vue.prototype.$messageBox = MessageBox
     Object.keys(components).forEach((key) => {
       Vue.use(components[key])
     })

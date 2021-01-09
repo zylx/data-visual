@@ -1,16 +1,16 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { cloneDeep, swap } from '@/utils/utils'
+import { getLocalStorage, setLocalStorage, cloneDeep, swap } from '@/utils/utils'
 import { message } from 'element-ui'
 
 Vue.use(Vuex)
 
 // 编辑器中的组件数据缓存
-const componentDataCache  = JSON.parse(localStorage.getItem('componentData')) || []
+const componentDataCache = getLocalStorage('componentData') || []
 // 编辑器快照数据缓存
-const snapshotDataCache  = JSON.parse(localStorage.getItem('snapshotData')) || []
+const snapshotDataCache = getLocalStorage('snapshotData') || []
 // 编辑器快照数据索引缓存
-const snapshotIndexCache  = parseInt(localStorage.getItem('snapshotIndex')) || -1
+const snapshotIndexCache = getLocalStorage('snapshotIndex') || -1
 
 const store = new Vuex.Store({
   state: {
@@ -38,8 +38,9 @@ const store = new Vuex.Store({
     menuShow: false, // 右键菜单是否显示
   },
   getters: {
-    undoEnable: state => state.snapshotIndex > 0 ? true : false, // 撤消按钮是否可用
-    redoEnable: state => state.snapshotIndex < state.snapshotData.length - 1 ? true : false // 重做按钮是否可用
+    canUndo: state => state.snapshotIndex > 0 ? true : false, // 撤消按钮是否可用
+    canRedo: state => state.snapshotIndex < state.snapshotData.length - 1 ? true : false, // 重做按钮是否可用
+    canClearCanvas: state => state.componentData.length > 0 ? true : false // 清屏按钮是否可用
   },
   mutations: {
     setEditMode (state, mode) {
@@ -101,7 +102,7 @@ const store = new Vuex.Store({
         state.snapshotIndex--
         store.commit('setComponentData', cloneDeep(state.snapshotData[state.snapshotIndex]))
         // 更新快照索引缓存
-        localStorage.setItem('snapshotIndex', state.snapshotIndex)
+        setLocalStorage('snapshotIndex', state.snapshotIndex)
       }
     },
 
@@ -111,7 +112,7 @@ const store = new Vuex.Store({
         state.snapshotIndex++
         store.commit('setComponentData', cloneDeep(state.snapshotData[state.snapshotIndex]))
         // 更新快照索引缓存
-        localStorage.setItem('snapshotIndex', state.snapshotIndex)
+        setLocalStorage('snapshotIndex', state.snapshotIndex)
       }
     },
 
@@ -129,10 +130,10 @@ const store = new Vuex.Store({
         state.snapshotData = state.snapshotData.slice(0, state.snapshotIndex + 1)
       }
       // 更新组件缓存
-      localStorage.setItem('componentData', JSON.stringify(state.componentData))
+      setLocalStorage('componentData', state.componentData)
       // 更新快照缓存
-      localStorage.setItem('snapshotIndex', state.snapshotData.length - 1)
-      localStorage.setItem('snapshotData', JSON.stringify(state.snapshotData))
+      setLocalStorage('snapshotIndex', state.snapshotData.length - 1)
+      setLocalStorage('snapshotData', state.snapshotData)
     },
 
     // 显示右键菜单

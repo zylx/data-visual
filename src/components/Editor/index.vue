@@ -52,7 +52,7 @@ import ContextMenu from './ContextMenu'
 import MarkLine from './MarkLine'
 import SelectBox from './SelectBox'
 import getStyle from '@/utils/style'
-import { cloneDeep } from '@/utils/utils'
+import { cloneDeep, setLocalStorage } from '@/utils/utils'
 
 export default {
   props: {
@@ -75,7 +75,7 @@ export default {
   watch: {
     // 监听 componentData 变化，更新缓存
     componentData () {
-      localStorage.setItem('componentData', JSON.stringify(this.componentData))
+      setLocalStorage('componentData', this.componentData)
     }
   },
   methods: {

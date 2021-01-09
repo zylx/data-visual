@@ -47,7 +47,7 @@ import componentConfigList from '@/customComponents/configList' // 左侧组件�
 import Editor from '@/components/Editor' // 编辑器
 import ToolBar from '@/components/ToolBar'
 import AttrList from '@/components/AttrList' // 右侧属性列表
-import { cloneDeep } from '@/utils/utils'
+import { cloneDeep, generateID } from '@/utils/utils'
 
 export default {
   nam: 'Home',
@@ -76,7 +76,7 @@ export default {
       component.style.left = e.offsetX
       console.log(this.componentData)
       // 组件ID 等于 componentData 数组中最大的 组件ID 加上1
-      component.id = this.componentData.length && (this.componentData.reduce((prve, cur) => cur.id > prve ? cur.id : prve, 1) + 1) || 1
+      component.id = generateID(this.componentData)
       console.log(component.id)
       this.$store.commit('addComponent', component)
       this.$store.commit('recordSnapshot') // 保存快照
