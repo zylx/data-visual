@@ -15,7 +15,7 @@
       :style="getShapeStyle(item.style, index)"
       :key="item.id"
       :active="index === curComponentZIndex"
-      :selected="item.selected"
+      :selected="item.selected || false"
       :element="item"
       :cIndex="index"
     >

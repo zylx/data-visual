@@ -24,19 +24,19 @@ import { cloneDeep } from '@/utils/utils'
 
 export default {
   props: {
-    active: {
+    active: { // 当前被操作的组件激活状态
       type: Boolean,
       default: false
     },
-    selected: {
+    selected: { // 组件是否被选中
       type: Boolean,
       default: false
     },
-    element: {
+    element: { // 对应 componentData 数组中的项
       require: true,
       type: Object
     },
-    cIndex: {
+    cIndex: { // 对应 componentData 数组中的索引下标
       require: true,
       type: [Number, String]
     }
@@ -101,19 +101,31 @@ export default {
         e.preventDefault()
       }
       e.stopPropagation()
-      this.element.selected = true // 设置当前组件为选中状态
-      this.$store.commit('setCurComponent', { component: this.element, zIndex: this.cIndex })
 
-      const startX = e.clientX // 点击时鼠标的 X 坐标
-      const startY = e.clientY // 点击时鼠标的 Y 坐标
-
+      // 深拷贝组件数据，用于下面操作的状态变更，等到鼠标抬起时再统一更新 store 中的状态
+      let componentData = cloneDeep(this.componentData)
       // 获取被选中的组件
       const components = document.querySelectorAll('.selected')
       // 获取组件初始状态相对于编辑器原点的 left、top 偏移量
       const offsetStyle = this.getOffsetStyle(components)
 
+      // 如果不是按住 ctrl 键且点击前组件是未被选中状态，则取消其它已被选中组件
+      // 用于按住 ctrl 键不放，然后支持点选的功能
+      if (!e.ctrlKey && !this.element.selected) {
+        components.forEach((component) => {
+          const cIndex = parseInt(component.getAttribute('index'))
+          componentData[cIndex].selected = false
+        })
+      }
+
+      this.element.selected = true // 设置当前组件为选中状态
+      componentData[this.cIndex].selected = true
+      this.$store.commit('setCurComponent', { component: this.element, zIndex: this.cIndex })
+
+      const startX = e.clientX // 点击时鼠标的 X 坐标
+      const startY = e.clientY // 点击时鼠标的 Y 坐标
+
       // 鼠标拖拽当前组件
-      let componentData = cloneDeep(this.componentData)
       let hasMove = false // 如果元素没有移动，则不保存快照
       const move = (moveEvent) => {
         hasMove = true
@@ -236,7 +248,7 @@ export default {
     getOffsetStyle (components) {
       const offsetStyle = {}
       components.length && components.forEach((component) => {
-        // cIndex，对应 componentData 数组中的下标
+        // cIndex，对应 componentData 数组中的索引下标
         const cIndex = component.getAttribute('index')
         offsetStyle[cIndex] = {
           offsetLeft: component.offsetLeft,
@@ -261,6 +273,7 @@ export default {
 .selected {
   border: 1px solid #66b1ff;
   background-color: rgba(112, 192, 255, 0.3);
+  cursor: move;
 }
 .shape-point {
   position: absolute;
