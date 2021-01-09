@@ -12,7 +12,6 @@
     <!--页面组件展示-->
     <shape
       v-for="(item, index) in componentData"
-      :defaultStyle="item.style"
       :style="getShapeStyle(item.style, index)"
       :key="item.id"
       :active="index === curComponentZIndex"
