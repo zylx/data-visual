@@ -2,16 +2,16 @@
   <div class="tool-bar">
     <div class="tool-bar-item">
       <span :class="{ disabled: !canUndo }" @click="undo">
-        <icon name="undo" :styles="{ padding: '2px 5px', color: '#66b1ff' }" />
+        <icon name="undo" />
       </span>
       <span :class="{ disabled: !canRedo }" @click="redo">
-        <icon name="redo" :styles="{ padding: '2px 5px', color: '#66b1ff' }" />
+        <icon name="redo" />
+      </span>
+      <span @click="preview">
+        <icon name="yulan" />
       </span>
       <span :class="{ disabled: !canClearCanvas }" @click="clearCanvas">
-        <icon
-          name="qingchu"
-          :styles="{ padding: '2px 5px', color: '#66b1ff' }"
-        />
+        <icon name="qingchu" />
       </span>
     </div>
     <div class="tool-bar-item">
@@ -23,6 +23,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import eventBus from '@/utils/eventBus'
 import Icon from '@/components/Icon'
 import { setLocalStorage } from '@/utils/utils'
 
@@ -31,6 +32,7 @@ export default {
   components: { Icon },
   computed: {
     ...mapGetters([
+      'componentData',
       'canUndo',
       'canRedo',
       'canClearCanvas'
@@ -47,9 +49,14 @@ export default {
       this.canRedo && this.$store.commit('redo')
     },
 
+    // 预览
+    preview () {
+      eventBus.$emit('showPreview')
+    },
+
     // 清屏
     clearCanvas () {
-      this.$messageBox.confirm('画布内容尚未保存，确定要清空吗？', '提示', {
+      this.canClearCanvas && this.$messageBox.confirm('画布内容尚未保存，确定要清空吗？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
@@ -85,7 +92,6 @@ export default {
       border: 1px solid #dcdfe6;
       border-radius: 3px;
       cursor: pointer;
-      color: #606266;
       background: #fefefe;
       :hover {
         background: #ecf5ff;

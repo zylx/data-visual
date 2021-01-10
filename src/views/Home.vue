@@ -39,6 +39,9 @@
         </el-tabs>
       </section>
     </main>
+
+    <!-- 预览 -->
+    <Preview v-model="isShowPreview" @handleClose="handlePreviewClose" />
   </div>
 </template>
 
@@ -64,7 +67,8 @@ export default {
   },
   data () {
     return {
-      activeName: 'attr'
+      activeName: 'attr',
+      isShowPreview: false
     }
   },
   computed: mapState([
@@ -72,6 +76,9 @@ export default {
     'curComponent',
     'canvasStyle'
   ]),
+  mounted () {
+    eventBus.$on('showPreview', this.handleShowPreview)
+  },
   methods: {
     handleDrop (e) { // 源对象拖放到目标对象中，目标对象完全接受被拖拽对象时触发，可理解为在目标对象内松手时触发
       e.preventDefault()
@@ -140,6 +147,17 @@ export default {
       }
 
       reader.readAsDataURL(file)
+    },
+
+    // 预览
+    handleShowPreview () {
+      this.isShowPreview = true
+      this.$store.commit('setEditMode', 'read')
+    },
+
+    // 关闭预览
+    handlePreviewClose () {
+      this.$store.commit('setEditMode', 'edit')
     }
 
   }

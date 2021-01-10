@@ -32,6 +32,7 @@ export default {
   align-items: center;
   width: 100%;
   height: 100%;
+  padding: 4px 8px;
   .icon {
     width: 100%; // 继承父容器宽高
     height: 100%;
