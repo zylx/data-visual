@@ -14,8 +14,9 @@
     <main>
       <!-- 左侧组件列表 -->
       <section class="left-side">
-        <component-list />
+        <component-list ref="componentList" />
       </section>
+
       <!-- 中间画布 -->
       <section class="center">
         <div
@@ -27,6 +28,7 @@
           <Editor />
         </div>
       </section>
+
       <!-- 右侧属性列表 -->
       <section class="right-side">
         <el-tabs v-model="activeName">
@@ -42,9 +44,11 @@
 
 <script>
 import { mapState } from 'vuex'
+import eventBus from '@/utils/eventBus'
 import ComponentList from '@/components/ComponentList' // 左侧组件列表
 import componentConfigList from '@/customComponents/configList' // 左侧组件列表数据
 import Editor from '@/components/Editor' // 编辑器
+import Preview from '@/components/Editor/Preview'
 import ToolBar from '@/components/ToolBar'
 import AttrList from '@/components/AttrList' // 右侧属性列表
 import { cloneDeep, generateID } from '@/utils/utils'
@@ -54,12 +58,13 @@ export default {
   components: {
     ComponentList,
     Editor,
+    Preview,
     ToolBar,
     AttrList
   },
   data () {
     return {
-      activeName: 'attr',
+      activeName: 'attr'
     }
   },
   computed: mapState([
@@ -72,14 +77,21 @@ export default {
       e.preventDefault()
       e.stopPropagation()
       const component = cloneDeep(componentConfigList[e.dataTransfer.getData('index')])
-      component.style.top = e.offsetY
-      component.style.left = e.offsetX
+      console.log(component)
       console.log(this.componentData)
-      // 组件ID 等于 componentData 数组中最大的 组件ID 加上1
-      component.id = generateID(this.componentData)
-      console.log(component.id)
-      this.$store.commit('addComponent', component)
-      this.$store.commit('recordSnapshot') // 保存快照
+      if (component.component === 'VImage') { // 弹出文件选框，插入图片
+        const componentListRefs = this.$refs.componentList
+        componentListRefs.$refs.filElem.dispatchEvent(new MouseEvent('click'))
+        // 监听 handleFileChange 图片选择事件
+        eventBus.$on('handleFileChange', (e) => this.handleFileChange(e))
+      } else {
+        component.style.top = e.offsetY
+        component.style.left = e.offsetX
+        // 组件ID 等于 componentData 数组中最大的 组件ID 加上1
+        component.id = generateID(this.componentData)
+        this.$store.commit('addComponent', component)
+        this.$store.commit('recordSnapshot') // 保存快照
+      }
     },
 
     handleDragOver (e) { // 源对象在过程对象范围内移动，被拖拽对象在过程对象内移动时触发
@@ -91,6 +103,43 @@ export default {
     deselectCurComponent () {
       this.$store.commit('setCurComponent', { component: null, zIndex: null })
       this.$store.commit('hideContexeMenu')
+    },
+
+    handleFileChange (e) {
+      console.log(e)
+      const file = e.target.files[0]
+      if (!file.type.includes('image')) {
+        this.$message.error('只能插入图片')
+        return
+      }
+
+      let reader = new FileReader()
+      reader.onload = (res) => {
+        console.log(res.target)
+        const fileResult = res.target.result
+        let img = new Image()
+        img.onload = () => {
+          this.$store.commit('addComponent', {
+            id: generateID(this.componentData),
+            component: 'VImage',
+            label: '图片',
+            icon: '',
+            propValue: fileResult,
+            animations: [],
+            events: [],
+            style: {
+              top: 0,
+              left: 0,
+              width: img.width,
+              height: img.height,
+              rotate: '',
+            },
+          })
+        }
+        img.src = fileResult
+      }
+
+      reader.readAsDataURL(file)
     }
 
   }

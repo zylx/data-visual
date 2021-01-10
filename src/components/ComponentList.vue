@@ -10,10 +10,13 @@
       <i :class="item.icon"></i>
       <span>{{ item.label }}</span>
     </div>
+    <!-- 图片插入（上传） -->
+    <input type="file" ref="filElem" @change="handleChange" hidden />
   </div>
 </template>
 
 <script>
+import eventBus from '@/utils/eventBus'
 import componentList from '@/customComponents/configList'
 
 export default {
@@ -26,6 +29,11 @@ export default {
     handleDragStart (e) { // 源对象开始拖放，开始移动时事件触发
       e.stopPropagation()
       e.dataTransfer.setData('index', e.target.dataset.index)
+    },
+    handleChange (e) {
+      // 触发 handleFileChange 事件
+      console.log('handleFileChange')
+      eventBus.$emit('handleFileChange', e)
     }
   }
 }
