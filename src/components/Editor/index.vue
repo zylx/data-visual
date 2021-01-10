@@ -20,7 +20,7 @@
       :cIndex="index"
     >
       <component
-        v-if="item.component != 'v-text'"
+        v-if="item.component !== 'v-text'"
         class="component"
         :is="item.component"
         :style="getComponentStyle(item.style)"
@@ -52,7 +52,7 @@ import ContextMenu from './ContextMenu'
 import MarkLine from './MarkLine'
 import SelectBox from './SelectBox'
 import getStyle from '@/utils/style'
-import { cloneDeep, setLocalStorage } from '@/utils/utils'
+import { cloneDeep } from '@/utils/utils'
 
 export default {
   props: {
@@ -72,12 +72,6 @@ export default {
     'componentData',
     'canvasStyle'
   ]),
-  watch: {
-    // 监听 componentData 变化，更新缓存
-    componentData () {
-      setLocalStorage('componentData', this.componentData)
-    }
-  },
   methods: {
     getShapeStyle (style, index) {
       const result = { ...style }
@@ -99,22 +93,16 @@ export default {
     },
 
     handleInput (element, value) {
-      // element.propValue = value
       // 根据文本组件高度调整 shape 高度
-      this.$store.commit('setShapeStyle', { height: this.getTextareaHeight(element, value) })
-      // 更新 componentData 中对应当前索引的 propValue 值（不增加判断，修改完当前组件再去点击其他组件时，其他组件内容会被改写）
-      if (element.id === this.componentData[this.curComponentZIndex].id) {
-        this.componentData[this.curComponentZIndex].propValue = value
-      }
-      // 保存快照
-      this.$store.commit('recordSnapshot')
-    },
-
-    getTextareaHeight (element, text) {
       let { lineHeight, fontSize, height } = element.style
       lineHeight = lineHeight || 1.5
-      const newHeight = text.split('\n').length * lineHeight * fontSize
-      return height > newHeight ? height : newHeight
+      const newHeight = value.split('\n').length * lineHeight * fontSize
+      element.style.height = height > newHeight ? height : newHeight
+      // 将上一次输入框取消选中并设置值
+      element.selected = false
+      element.propValue = value
+      // 保存快照
+      this.$store.commit('recordSnapshot')
     },
 
     handleMouseDown (e) {
@@ -201,8 +189,6 @@ export default {
           componentData[i].selected = false
         }
       }
-      // 更新组件列表
-      this.$store.commit('setComponentData', componentData)
 
       return selectedComponents
     }

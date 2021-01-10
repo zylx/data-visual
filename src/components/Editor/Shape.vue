@@ -109,18 +109,8 @@ export default {
       // 获取组件初始状态相对于编辑器原点的 left、top 偏移量
       const offsetStyle = this.getOffsetStyle(components)
 
-      // 如果不是按住 ctrl 键且点击前组件是未被选中状态，则取消其它已被选中组件
-      // 用于按住 ctrl 键不放，然后支持点选的功能
-      if (!e.ctrlKey && !this.element.selected) {
-        components.forEach((component) => {
-          const cIndex = parseInt(component.getAttribute('index'))
-          componentData[cIndex].selected = false
-        })
-      }
-
-      this.element.selected = true // 设置当前组件为选中状态
-      componentData[this.cIndex].selected = true
-      this.$store.commit('setCurComponent', { component: this.element, zIndex: this.cIndex })
+      // 检查是否按住 ctrl 键行为来设置组件状态
+      this.checkCtrlAction(componentData, components, e.ctrlKey)
 
       const startX = e.clientX // 点击时鼠标的 X 坐标
       const startY = e.clientY // 点击时鼠标的 Y 坐标
@@ -183,7 +173,7 @@ export default {
       downEvent.stopPropagation()
       downEvent.preventDefault()
 
-      const pos = { ...this.element.style }
+      const pos = this.element.style
       const height = Number(pos.height)
       const width = Number(pos.width)
       const top = Number(pos.top)
@@ -192,7 +182,6 @@ export default {
       const startY = downEvent.clientY
 
       // 控制点拖拽
-
       let needSave = false // 是否需要保存快照
       const move = (moveEvent) => {
         needSave = true
@@ -213,7 +202,6 @@ export default {
         pos.height = newHeight > 0 ? newHeight : 0
         pos.left = left + (hasL ? disX : 0)
         pos.top = top + (hasT ? disY : 0)
-        this.$store.commit('setShapeStyle', pos)
       }
 
       const up = () => {
@@ -256,6 +244,35 @@ export default {
         }
       })
       return offsetStyle
+    },
+
+    // 检查是否按住 ctrl 键行为来设置组件状态
+    checkCtrlAction (componentData, components, ctrlKey) {
+      // 为了避免在子组件中修改父组件传进来的 props 时报错，需要重新定义一个变量，值为 this.cIndex
+      let curCindex = this.cIndex
+      // 设置当前组件为选中状态
+      componentData[curCindex].selected = true
+
+      // 检查是否按住 ctrl 键不放，如是则开启点选组件功能
+      if (!ctrlKey && !this.element.selected) {
+        // 不是按住 ctrl 键且点击前组件是未被选中状态，则取消其它组件的选中状态
+        components.forEach((component) => {
+          const cIndex = parseInt(component.getAttribute('index'))
+          if (cIndex !== curCindex) {
+            componentData[cIndex].selected = false
+          }
+        })
+      } else if (ctrlKey && this.element.selected) {
+        // 按住 ctrl 键且点击前组件是被选中状态，则取消当前组件的选中状态
+        componentData[this.cIndex].selected = false
+        // 取消当前组件的 active 状态
+        curCindex = null
+      }
+
+      // 更新当前组件状态
+      this.$store.commit('setCurComponent', { component: this.element, zIndex: curCindex })
+      // 更新组件列表
+      this.$store.commit('setComponentData', componentData)
     }
 
   }

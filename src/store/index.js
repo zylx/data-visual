@@ -73,12 +73,12 @@ const store = new Vuex.Store({
     },
 
     // 修改当前组件样式
-    setShapeStyle ({ curComponent }, { top, left, width, height }) {
-      top && (curComponent.style.top = top)
-      left && (curComponent.style.left = left)
-      width && (curComponent.style.width = width)
-      height && (curComponent.style.height = height)
-    },
+    // setShapeStyle ({ curComponent }, { top, left, width, height }) {
+    //   top && (curComponent.style.top = top)
+    //   left && (curComponent.style.left = left)
+    //   width && (curComponent.style.width = width)
+    //   height && (curComponent.style.height = height)
+    // },
 
     setShapePosStyle ({ curComponent }, { key, value }) {
       curComponent.style[key] = value
@@ -119,6 +119,8 @@ const store = new Vuex.Store({
     // 设置（更新）画布中组件信息
     setComponentData (state, componentData = []) {
       Vue.set(state, 'componentData', componentData)
+      // 更新组件缓存
+      setLocalStorage('componentData', componentData)
     },
 
     // 记录操作步骤快照
