@@ -5,48 +5,60 @@
     :style="{ top: menuTop + 'px', left: menuLeft + 'px' }"
   >
     <ul>
-      <li @click="deleteComponent">删除</li>
-      <li @click="topComponent">置顶</li>
-      <li @click="bottomComponent">置底</li>
-      <li @click="upComponent">上移</li>
-      <li @click="downComponent">下移</li>
+      <li @click="del">删除</li>
+      <li @click="toTop">置顶</li>
+      <li @click="toBottom">置底</li>
+      <li @click="moveUp">上移</li>
+      <li @click="moveDown">下移</li>
     </ul>
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapMutations, mapActions } from 'vuex'
 
 export default {
-  computed: mapState([
+  computed: mapState('contextMenu', [
     'menuTop',
     'menuLeft',
     'menuShow',
   ]),
   methods: {
-    deleteComponent () {
-      this.$store.commit('deleteComponent')
-      this.$store.commit('recordSnapshot')
+    ...mapActions('contextMenu', [
+      'deleteComponent',
+      'upComponent',
+      'downComponent',
+      'topComponent',
+      'bottomComponent'
+    ]),
+
+    ...mapMutations([
+      'recordSnapshot'
+    ]),
+
+    del () {
+      this.deleteComponent()
+      this.recordSnapshot()
     },
 
-    upComponent () {
-      this.$store.commit('upComponent')
-      this.$store.commit('recordSnapshot')
+    moveUp () {
+      this.upComponent()
+      this.recordSnapshot()
     },
 
-    downComponent () {
-      this.$store.commit('downComponent')
-      this.$store.commit('recordSnapshot')
+    moveDown () {
+      this.downComponent()
+      this.recordSnapshot()
     },
 
-    topComponent () {
-      this.$store.commit('topComponent')
-      this.$store.commit('recordSnapshot')
+    toTop () {
+      this.topComponent()
+      this.recordSnapshot()
     },
 
-    bottomComponent () {
-      this.$store.commit('bottomComponent')
-      this.$store.commit('recordSnapshot')
+    toBottom () {
+      this.bottomComponent()
+      this.recordSnapshot()
     }
   }
 }

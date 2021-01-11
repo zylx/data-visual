@@ -229,7 +229,7 @@ export default {
         target = target.parentNode
       }
 
-      this.$store.commit('showContexeMenu', { top, left })
+      this.$store.dispatch('contextMenu/showContextMenu', { top, left })
     },
 
     // 获取组件初始状态相对于编辑器原点的 left、top 偏移量

@@ -15,8 +15,12 @@
       </span>
     </div>
     <div class="tool-bar-item">
-      <span><icon name="undo" /></span>
-      <span><icon name="redo" /></span>
+      <span @click="alignTop">
+        <icon name="shangduiqi" />
+      </span>
+      <!-- <span @click="alignBottom">
+        <icon name="xiaduiqi" />
+      </span> -->
     </div>
   </div>
 </template>
@@ -68,7 +72,14 @@ export default {
         setLocalStorage('snapshotIndex', - 1)
         setLocalStorage('snapshotData', [])
       }).catch(() => { })
+    },
+
+    /** 对齐方式 **/
+    // 上对齐
+    alignTop () {
+
     }
+
   }
 }
 </script>

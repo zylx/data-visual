@@ -31,6 +31,7 @@ export default {
       e.dataTransfer.setData('index', e.target.dataset.index)
     },
     handleChange (e) {
+      e.stopPropagation()
       // 触发 handleFileChange 事件
       console.log('handleFileChange')
       eventBus.$emit('handleFileChange', e)

@@ -109,7 +109,7 @@ export default {
     // 不选中元素
     deselectCurComponent () {
       this.$store.commit('setCurComponent', { component: null, zIndex: null })
-      this.$store.commit('hideContexeMenu')
+      this.$store.dispatch('contextMenu/hideContextMenu')
     },
 
     handleFileChange (e) {
