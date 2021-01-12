@@ -55,26 +55,6 @@ const mutations = {
     state.selectBoxStyle = result
   },
 
-  // 撤消
-  undo (state) {
-    if (state.snapshotIndex > 0) {
-      state.snapshotIndex--
-      this.commit('setComponentData', cloneDeep(state.snapshotData[state.snapshotIndex]))
-      // 更新快照索引缓存
-      setLocalStorage('snapshotIndex', state.snapshotIndex)
-    }
-  },
-
-  // 重做
-  redo (state) {
-    if (state.snapshotIndex < state.snapshotData.length - 1) {
-      state.snapshotIndex++
-      this.commit('setComponentData', cloneDeep(state.snapshotData[state.snapshotIndex]))
-      // 更新快照索引缓存
-      setLocalStorage('snapshotIndex', state.snapshotIndex)
-    }
-  },
-
   // 设置（更新）画布中组件信息
   setComponentData (state, componentData = []) {
     Vue.set(state, 'componentData', componentData)

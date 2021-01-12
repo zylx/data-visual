@@ -78,14 +78,12 @@ const contextMenu = {
       commit('hideContextMenu')
     },
 
-    ...['deleteComponent', 'upComponent', 'downComponent', 'topComponent', 'bottomComponent'].reduce((prve, cur) => {
-      prve[cur] = ({ commit, rootState }) => {
-        commit(cur, {
-          componentData: rootState.componentData,
-          curComponentZIndex: rootState.curComponentZIndex
-        })
-      }
-      return prve
+    ...['deleteComponent', 'upComponent', 'downComponent', 'topComponent', 'bottomComponent'].reduce((prev, cur) => {
+      prev[cur] = ({ commit, rootState }) => commit(cur, {
+        componentData: rootState.componentData,
+        curComponentZIndex: rootState.curComponentZIndex
+      })
+      return prev
     }, {})
 
   }

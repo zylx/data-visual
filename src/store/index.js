@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 import state from './state'
 import mutations from './mutations'
 import getters from './getters'
+import toolBar from './modules/toolBar'
 import contextMenu from './modules/contextMenu'
 
 Vue.use(Vuex)
@@ -12,6 +13,7 @@ const store = new Vuex.Store({
   getters,
   mutations,
   modules: {
+    toolBar,
     contextMenu
   }
 })
