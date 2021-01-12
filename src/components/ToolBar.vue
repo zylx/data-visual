@@ -27,6 +27,18 @@
       <span @click="alignRight">
         <icon name="youduiqi" />
       </span>
+      <span @click="alignCenterX">
+        <icon name="shuipingjuzhongduiqi" />
+      </span>
+      <span @click="alignCenterY">
+        <icon name="chuizhijuzhongduiqi" />
+      </span>
+      <span @click="alignIsometricX">
+        <icon name="shuipingdengjufenbu" />
+      </span>
+      <span @click="alignIsometricY">
+        <icon name="chuizhidengjufenbu" />
+      </span>
     </div>
   </div>
 </template>
@@ -149,6 +161,126 @@ export default {
         }, []))
         // 可通过 indexs 遍历更新 componentData 数组中对应的元素
         this.$store.dispatch('toolBar/alignRight', { maxRight, indexs })
+        this.$store.commit('recordSnapshot')
+      }
+    },
+
+    // 水平居中对齐，被选中组件中，找出 Y轴 方向最大间距的上下边框，然后取其中线，其它单个组件 Y轴 方向的中线与之对齐
+    alignCenterX () {
+      const components = this.getSelectedComponentsElement()
+      if (components.length) {
+        const indexs = []
+        // 先获取组件的上边距（offsetTop）和下边距（offsetTop + offsetHeight）分别放入 topBottomObj 对象的对应数组中，再分别求数组的最小、最大值
+        const topBottomObj = components.reduce((prev, cur) => {
+          // cIndex，对应 componentData 数组中的索引下标
+          indexs.push(parseInt(cur.getAttribute('index')))
+          prev.top.push(cur.offsetTop)
+          prev.bottom.push(cur.offsetTop + cur.offsetHeight)
+          return prev
+        }, { top: [], bottom: [] })
+        // 最小上边距
+        const minTop = Math.min.apply(null, topBottomObj.top)
+        // 最大下边距
+        const maxBottom = Math.max.apply(null, topBottomObj.bottom)
+        // Y轴方向中线
+        const centerLineY = minTop + parseInt((maxBottom - minTop) / 2)
+        // 可通过 indexs 遍历更新 componentData 数组中对应的元素
+        this.$store.dispatch('toolBar/alignCenterX', { centerLineY, indexs })
+        this.$store.commit('recordSnapshot')
+      }
+    },
+
+    // 垂直居中对齐，被选中组件中，找出 X轴 方向最大间距的左右边框，然后取其中线，其它单个组件 X轴 方向的中线与之对齐
+    alignCenterY () {
+      const components = this.getSelectedComponentsElement()
+      if (components.length) {
+        const indexs = []
+        // 先获取组件的左边距（offsetLeft）和右边距（offsetLeft + offsetWidth）分别放入 leftRightObj 对象的对应数组中，再分别求数组的最小、最大值
+        const leftRightObj = components.reduce((prev, cur) => {
+          // cIndex，对应 componentData 数组中的索引下标
+          indexs.push(parseInt(cur.getAttribute('index')))
+          prev.left.push(cur.offsetLeft)
+          prev.right.push(cur.offsetLeft + cur.offsetWidth)
+          return prev
+        }, { left: [], right: [] })
+        // 最小左边距
+        const minLeft = Math.min.apply(null, leftRightObj.left)
+        // 最大右边距
+        const maxRight = Math.max.apply(null, leftRightObj.right)
+        // X轴方向中线
+        const centerLineX = minLeft + parseInt((maxRight - minLeft) / 2)
+        // 可通过 indexs 遍历更新 componentData 数组中对应的元素
+        this.$store.dispatch('toolBar/alignCenterY', { centerLineX, indexs })
+        this.$store.commit('recordSnapshot')
+      }
+    },
+
+    // 水平等距分布
+    // 1、先获取所有选中组件整体中最左和最右组件的最大间距 X; 
+    // 2、再获取整体中组件的平均间距，即 平均间距 = (X - 所有组件宽度之和) / (组件个数 - 1); 
+    // 3、然后将所有组件按照 offsetLeft 值进行递增排序; 
+    // 4、最后按照排序结果依次进行移动（头尾组件不动），规则为：下一个组件的 offsetLeft = (上一个组件的 offsetLeft + offsetWidth) + 平均间距。
+    alignIsometricX () {
+      const components = this.getSelectedComponentsElement()
+      if (components.length) {
+        let totalOffsetWidth = 0
+        const indexs = []
+        // 先获取组件的左边距（offsetLeft）和右边距（offsetLeft + offsetWidth）分别放入 leftRightObj 对象的对应数组中，再分别求数组的最小、最大值
+        const leftRightObj = components.reduce((prev, cur) => {
+          // cIndex，对应 componentData 数组中的索引下标
+          // 后面需要对 offsetLeft 值进行递增排序
+          indexs.push({
+            cIndex: parseInt(cur.getAttribute('index')),
+            left: cur.offsetLeft
+          })
+          totalOffsetWidth += cur.offsetWidth
+          prev.left.push(cur.offsetLeft)
+          prev.right.push(cur.offsetLeft + cur.offsetWidth)
+          return prev
+        }, { left: [], right: [] })
+        // 最小左边距
+        const minLeft = Math.min.apply(null, leftRightObj.left)
+        // 最大右边距
+        const maxRight = Math.max.apply(null, leftRightObj.right)
+        // X轴方向平均间距，平均间距 = (最大间距X - 所有组件宽度之和) / (组件个数 - 1); 
+        const averageSpacingX = parseInt(((maxRight - minLeft) - totalOffsetWidth) / (indexs.length - 1))
+        // 将所有组件按照 offsetLeft 值进行递增排序
+        indexs.sort((a, b) => a.left - b.left)
+        // 可通过 indexs 遍历更新 componentData 数组中对应的元素
+        this.$store.dispatch('toolBar/alignIsometricX', { averageSpacingX, indexs })
+        this.$store.commit('recordSnapshot')
+      }
+    },
+
+    // 垂直等距分布（与水平等距分布逻辑同理）
+    alignIsometricY () {
+      const components = this.getSelectedComponentsElement()
+      if (components.length) {
+        let totalOffsetHeight = 0
+        const indexs = []
+        // 先获取组件的上边距（offsetTop）和下边距（offsetTop + offsetHeight）分别放入 topBottomObj 对象的对应数组中，再分别求数组的最小、最大值
+        const topBottomObj = components.reduce((prev, cur) => {
+          // cIndex，对应 componentData 数组中的索引下标
+          // 后面需要对 offsetTop 值进行递增排序
+          indexs.push({
+            cIndex: parseInt(cur.getAttribute('index')),
+            top: cur.offsetTop
+          })
+          totalOffsetHeight += cur.offsetHeight
+          prev.top.push(cur.offsetTop)
+          prev.bottom.push(cur.offsetTop + cur.offsetHeight)
+          return prev
+        }, { top: [], bottom: [] })
+        // 最小上边距
+        const minTop = Math.min.apply(null, topBottomObj.top)
+        // 最大下边距
+        const maxBottom = Math.max.apply(null, topBottomObj.bottom)
+        // Y轴方向平均间距，平均间距 = (最大间距Y - 所有组件高度之和) / (组件个数 - 1); 
+        const averageSpacingY = parseInt(((maxBottom - minTop) - totalOffsetHeight) / (indexs.length - 1))
+        // 将所有组件按照 offsetTop 值进行递增排序
+        indexs.sort((a, b) => a.top - b.top)
+        // 可通过 indexs 遍历更新 componentData 数组中对应的元素
+        this.$store.dispatch('toolBar/alignIsometricY', { averageSpacingY, indexs })
         this.$store.commit('recordSnapshot')
       }
     },

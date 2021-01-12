@@ -91,12 +91,70 @@ const toolBar = {
         }
       })
       rootState.componentData = componentData
+    },
+
+    // 水平居中对齐
+    alignCenterX (state, { rootState, payload }) {
+      const componentData = [...rootState.componentData]
+      payload.indexs.forEach(index => {
+        const style = componentData[index].style
+        // 垂直方向，单个组件的中线与被选组件整体的中线 centerLineY 对齐
+        style.top = payload.centerLineY - parseInt(style.height / 2)
+      })
+      rootState.componentData = componentData
+    },
+
+    // 垂直居中对齐
+    alignCenterY (state, { rootState, payload }) {
+      const componentData = [...rootState.componentData]
+      payload.indexs.forEach(index => {
+        const style = componentData[index].style
+        // 水平方向，单个组件的中线与被选组件整体的中线 centerLineX 对齐
+        style.left = payload.centerLineX - parseInt(style.width / 2)
+      })
+      rootState.componentData = componentData
+    },
+
+    // 水平等距分布
+    alignIsometricX (state, { rootState, payload }) {
+      const componentData = [...rootState.componentData]
+      // 按照排序结果依次进行移动（头尾组件不动，头部组件需要用来计算第二个组件的偏移量，但可去除最后一个组件）
+      payload.indexs.pop()
+      payload.indexs.reduce((prev, cur) => {
+        console.log('prev: ', prev)
+        console.log('cur: ', cur)
+        // 上一个组件样式
+        const prevStyle = componentData[prev.cIndex].style
+        // 下一个组件样式
+        const curStyle = componentData[cur.cIndex].style
+        // 移动规则：下一个元素的 offsetLeft = (上一个元素的offsetLeft + offsetWidth) + 平均间距
+        curStyle.left = (prevStyle.left + prevStyle.width) + payload.averageSpacingX
+        return cur
+      })
+      rootState.componentData = componentData
+    },
+
+    // 垂直等距分布
+    alignIsometricY (state, { rootState, payload }) {
+      const componentData = [...rootState.componentData]
+      // 按照排序结果依次进行移动（头尾组件不动，头部组件需要用来计算第二个组件的偏移量，但可去除最后一个组件）
+      payload.indexs.pop()
+      payload.indexs.reduce((prev, cur) => {
+        // 上一个组件样式
+        const prevStyle = componentData[prev.cIndex].style
+        // 下一个组件样式
+        const curStyle = componentData[cur.cIndex].style
+        // 移动规则：下一个元素的 offsetTop = (上一个元素的offsetTop + offsetHeight) + 平均间距
+        curStyle.top = (prevStyle.top + prevStyle.height) + payload.averageSpacingY
+        return cur
+      })
+      rootState.componentData = componentData
     }
 
   },
 
   actions: {
-    ...['undo', 'redo', 'alignTop', 'alignBottom', 'alignLeft', 'alignRight'].reduce((prev, cur) => {
+    ...['undo', 'redo', 'alignTop', 'alignBottom', 'alignLeft', 'alignRight', 'alignCenterX', 'alignCenterY', 'alignIsometricX', 'alignIsometricY'].reduce((prev, cur) => {
       prev[cur] = ({ commit, rootState }, payload = {}) => commit(cur, { rootState, payload })
       return prev
     }, {})
