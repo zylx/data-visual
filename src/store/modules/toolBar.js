@@ -1,22 +1,9 @@
-// import Vue from 'vue'
 import { cloneDeep, setLocalStorage } from '@/utils/utils'
-// import { message } from 'element-ui'
 
 const toolBar = {
   namespaced: true,
   state: {},
   mutations: {
-    // // 撤消
-    // undo (state, { snapshotIndex, snapshotData, componentData }) {
-    //   if (snapshotIndex > 0) {
-    //     snapshotIndex--
-    //     componentData = cloneDeep(snapshotData[snapshotIndex])
-    //     // 更新快照索引缓存
-    //     setLocalStorage('snapshotIndex', snapshotIndex)
-    //     // 更新组件缓存
-    //     setLocalStorage('componentData', componentData)
-    //   }
-    // },
     // 撤消
     undo (state, { rootState }) {
       if (rootState.snapshotIndex > 0) {
@@ -121,8 +108,6 @@ const toolBar = {
       // 按照排序结果依次进行移动（头尾组件不动，头部组件需要用来计算第二个组件的偏移量，但可去除最后一个组件）
       payload.indexs.pop()
       payload.indexs.reduce((prev, cur) => {
-        console.log('prev: ', prev)
-        console.log('cur: ', cur)
         // 上一个组件样式
         const prevStyle = componentData[prev.cIndex].style
         // 下一个组件样式
