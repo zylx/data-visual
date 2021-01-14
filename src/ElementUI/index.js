@@ -15,7 +15,7 @@ import {
   Popconfirm
 } from 'element-ui'
 
-const components = {
+const components = [
   Row,
   Col,
   Tabs,
@@ -28,14 +28,14 @@ const components = {
   ColorPicker,
   Button,
   Popconfirm
-}
+]
 
 export default {
   install (Vue) {
     Vue.prototype.$message = Message
     Vue.prototype.$messageBox = MessageBox
-    Object.keys(components).forEach((key) => {
-      Vue.use(components[key])
+    components.forEach((component) => {
+      Vue.use(component)
     })
   }
 }
