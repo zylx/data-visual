@@ -24,6 +24,7 @@
         class="component"
         :is="item.component"
         :style="getComponentStyle(item.style)"
+        :id="item.id"
         :propValue="item.propValue"
       />
       <component

@@ -81,7 +81,7 @@ export default {
           newTop = Math.floor(offsetLTop / 2)
         }
       }
-      const pointDiameter = 6 // 控制点直径
+      const pointDiameter = 8 // 控制点直径
       const style = {
         width: `${pointDiameter}px`,
         height: `${pointDiameter}px`,
@@ -202,6 +202,12 @@ export default {
         pos.height = newHeight > 0 ? newHeight : 0
         pos.left = left + (hasL ? disX : 0)
         pos.top = top + (hasT ? disY : 0)
+
+        // 如果是Echarts组件，触发放大做小事件
+        if(this.element.component.indexOf('chart') !== -1){
+          eventBus.$emit('chartResize')
+        }
+
       }
 
       const up = () => {
