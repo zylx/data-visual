@@ -147,8 +147,6 @@ export default {
           // 遍历符合的条件并处理
           conditions[key].forEach((condition) => {
             if (!condition.isNearly) return
-            // 修改当前组件位移
-            this.$store.commit('setShapePosStyle', { key, value: condition.dragShift })
             condition.lineNode.style[key] = `${condition.lineShift}px`
             needToShow.push(condition.line)
           })

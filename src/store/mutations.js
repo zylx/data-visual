@@ -31,18 +31,6 @@ const mutations = {
     state.curComponentZIndex = zIndex
   },
 
-  // 修改当前组件样式
-  // setShapeStyle ({ curComponent }, { top, left, width, height }) {
-  //   top && (curComponent.style.top = top)
-  //   left && (curComponent.style.left = left)
-  //   width && (curComponent.style.width = width)
-  //   height && (curComponent.style.height = height)
-  // },
-
-  setShapePosStyle ({ curComponent }, { key, value }) {
-    curComponent.style[key] = value
-  },
-
   // 更新 selectBox 位置及宽高
   setSelectBoxStyle (state, style) {
     const result = {
