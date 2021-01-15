@@ -7,12 +7,14 @@
       class="conponent"
       :is="config.component"
       :style="getStyle(config.style)"
+      :id="getUUID()"
       :propValue="config.propValue"
     />
   </div>
 </template>
 
 <script>
+import { v4 as uuid } from 'uuid'
 import getStyle from '@/utils/style'
 // import { mixins } from '@/utils/events'
 
@@ -27,7 +29,9 @@ export default {
   // mixins: [mixins],
   methods: {
     getStyle,
-
+    getUUID () {
+      return uuid()
+    }
     // handleClick() {
     //     const events = this.config.events
     //     Object.keys(events).forEach(event => {

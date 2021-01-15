@@ -8,7 +8,7 @@
         height: canvasStyle.height + 'px',
       }"
     >
-      <ComponentWrapper :componentData="componentData" />
+      <ComponentWrapper v-if="show" :componentData="componentData" />
     </div>
   </div>
 </template>

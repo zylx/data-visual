@@ -51,9 +51,9 @@ import eventBus from '@/utils/eventBus'
 import ComponentList from '@/components/ComponentList' // 左侧组件列表
 import componentConfigList from '@/customComponents/configList' // 左侧组件列表数据
 import Editor from '@/components/Editor' // 编辑器
-import Preview from '@/components/Editor/Preview'
 import ToolBar from '@/components/ToolBar'
 import AttrList from '@/components/AttrList' // 右侧属性列表
+const Preview = () => import('@/components/Preview') // 异步加载，而且仅当点击【预览】时，才会加载 DOM（使用v-if判断显示，初始化减少页面资源加载和编辑器操作响应触发）
 import { cloneDeep, generateID } from '@/utils/utils'
 
 export default {
@@ -86,7 +86,7 @@ export default {
       const component = cloneDeep(componentConfigList[e.dataTransfer.getData('index')])
       console.log(component)
       console.log(this.componentData)
-      if (component.component === 'VImage') { // 弹出文件选框，插入图片
+      if (component.component === 'v-image') { // 弹出文件选框，插入图片
         const componentListRefs = this.$refs.componentList
         componentListRefs.$refs.filElem.dispatchEvent(new MouseEvent('click'))
         // 监听 handleFileChange 图片选择事件
