@@ -101,6 +101,8 @@ export default {
         e.preventDefault()
       }
       e.stopPropagation()
+      // 更新当前组件状态
+      this.$store.commit('setCurComponent', { component: this.element, zIndex: this.cIndex })
 
       // 深拷贝组件数据，用于下面操作的状态变更，等到鼠标抬起时再统一更新 store 中的状态
       let componentData = cloneDeep(this.componentData)
@@ -111,6 +113,8 @@ export default {
 
       // 检查是否按住 ctrl 键行为来设置组件状态
       this.checkCtrlAction(componentData, components, e.ctrlKey)
+      // 检查是否按住 ctrl 键且点击前组件是被选中状态，是则取消当前组件的选中状态
+      const isCtrlKeyAndSeleceted = e.ctrlKey && this.element.selected
 
       const startX = e.clientX // 点击时鼠标的 X 坐标
       const startY = e.clientY // 点击时鼠标的 Y 坐标
@@ -148,8 +152,9 @@ export default {
       }
 
       const up = () => {
-        // 更新组件列表
-        components.length && this.$store.commit('setComponentData', componentData)
+        // 需要再次更新当前组件状态，不然点击组件时，右侧属性表单的双向数据绑定将失效
+        // 检查是否按住 ctrl 键且点击前组件是被选中状态，是则取消当前组件的选中状态，即 zIndex 设置为 null
+        this.$store.commit('setCurComponent', { component: this.element, zIndex: isCtrlKeyAndSeleceted ? null : this.cIndex })
         hasMove && this.$store.commit('recordSnapshot')
         document.removeEventListener('mousemove', move)
         document.removeEventListener('mouseup', up)
@@ -204,8 +209,8 @@ export default {
         pos.top = top + (hasT ? disY : 0)
 
         // 如果是Echarts组件，触发放大做小事件
-        if(this.element.component.indexOf('chart') !== -1){
-          eventBus.$emit('chartResize')
+        if (this.element.component.indexOf('chart') !== -1) {
+          eventBus.$emit('chartResize', this.curComponent.id)
         }
 
       }
@@ -270,13 +275,9 @@ export default {
         })
       } else if (ctrlKey && this.element.selected) {
         // 按住 ctrl 键且点击前组件是被选中状态，则取消当前组件的选中状态
-        componentData[this.cIndex].selected = false
-        // 取消当前组件的 active 状态
-        curCindex = null
+        componentData[curCindex].selected = false
       }
 
-      // 更新当前组件状态
-      this.$store.commit('setCurComponent', { component: this.element, zIndex: curCindex })
       // 更新组件列表
       this.$store.commit('setComponentData', componentData)
     }
