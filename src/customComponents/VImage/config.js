@@ -1,8 +1,8 @@
 export default {
-  component: 'VImage',
+  component: 'v-image',
   label: '图片',
   icon: 'el-icon-picture',
-  propValue: require('@/assets/title.jpg'),
+  propValue: '',
   animations: [],
   events: {},
   style: {

@@ -84,13 +84,12 @@ export default {
       e.preventDefault()
       e.stopPropagation()
       const component = cloneDeep(componentConfigList[e.dataTransfer.getData('index')])
-      console.log(component)
-      console.log(this.componentData)
+
       if (component.component === 'v-image') { // 弹出文件选框，插入图片
         const componentListRefs = this.$refs.componentList
         componentListRefs.$refs.filElem.dispatchEvent(new MouseEvent('click'))
-        // 监听 handleFileChange 图片选择事件
-        eventBus.$on('handleFileChange', (e) => this.handleFileChange(e))
+        // 监听 handleFileChange 图片选择事件，使用 $once 执行一次就清除事件，不然会导致事件累加触发，出现多张图片重复上传
+        eventBus.$once('handleFileChange', (e) => this.handleFileChange(e))
       } else {
         component.style.top = e.offsetY
         component.style.left = e.offsetX
@@ -119,6 +118,10 @@ export default {
         this.$message.error('只能插入图片')
         return
       }
+      if (file.size > 1024 * 300) {
+        this.$message.error('插入图片尺寸过大，请限制在300Kb以内！')
+        return
+      }
 
       let reader = new FileReader()
       reader.onload = (res) => {
@@ -128,7 +131,7 @@ export default {
         img.onload = () => {
           this.$store.commit('addComponent', {
             id: generateID(this.componentData),
-            component: 'VImage',
+            component: 'v-image',
             label: '图片',
             icon: '',
             propValue: fileResult,
@@ -137,8 +140,8 @@ export default {
             style: {
               top: 0,
               left: 0,
-              width: img.width,
-              height: img.height,
+              width: 300,
+              height: 300 * (img.height / img.width),
               rotate: '',
             },
           })
@@ -213,6 +216,16 @@ export default {
       .placeholder {
         text-align: center;
         color: #333;
+      }
+      .el-tabs {
+        .el-tabs__header {
+          margin-bottom: 0 !important;
+        }
+        .placeholder {
+          padding: 20px 10px;
+          text-align: center;
+          color: #82848a;
+        }
       }
     }
   }
